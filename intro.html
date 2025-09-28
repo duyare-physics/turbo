@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme- color" content="#06c1db">
+    <title>Phys</title>
+    <link rel="icon" href="https://raw.githubusercontent.com/duyare-physics/turbo/main/favicon_logo.jpg"
+        type="image/png">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, Arial;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom right, #d4edda, #fffbe6);
+            min-height: 100vh;
+
+
+        }
+
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 20px;
+            background: linear-gradient(to right, #e8f5e9, #fefae0);
+            border-bottom: 1px solid #ccc;
+            position: relative;
+            text-align: center;
+        }
+
+        .header-title {
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2e7d32;
+            animation: bounce 1s infinite;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .header img.duyar {
+                align-self: flex-start;
+                margin-bottom: 10px;
+                margin-left: 0;
+            }
+
+            .header-title {
+                width: 100%;
+            }
+
+            .title {
+                font-size: 1.4rem;
+                margin-top: 5px;
+            }
+        }
+
+
+
+        div.footer {
+            padding-left: 20px;
+        }
+
+
+        img.qr {
+            height: 100px;
+            width: 100px;
+            border-radius: 15px;
+            transition: all 0.03s ease-in-out;
+        }
+
+        img.qr:hover {
+            border-color: teal;
+            border-radius: 0px;
+            border-width: 3px;
+            border-style: solid;
+        }
+
+        .logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2e7d32;
+            margin-left: 10px;
+            animation: bounce 1s infinite;
+            text-align: center;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-25px);
+            }
+        }
+
+        .content {
+            padding: 20px;
+            color: #333;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .title {
+                font-size: 1.25rem;
+                margin-top: 10px;
+            }
+        }
+
+        p.tab {
+            padding: 0px;
+        }
+
+        input[type="search"] {
+            width: 310px;
+            height: 40px;
+            background-color: rgba(241, 243, 213, 0.658);
+            border-radius: 20px;
+            font-weight: bold;
+            padding-left: 10px;
+            transition: all 0.08s ease-in-out;
+        }
+
+        input:hover {
+            width: 330px;
+            height: 45px;
+            border-color: rgb(0, 102, 255);
+            border-width: 5px;
+
+        }
+
+        img.duyar {
+            border-radius: 10px;
+            height: 70px;
+            width: 100px;
+            transition: all 0.04s ease-in-out;
+        }
+
+        img.duyar:hover {
+            border-radius: 0px;
+            border-color: green;
+            border-style: solid;
+        }
+
+        .emo {
+            display: inline-block;
+            animation: rollIn 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes rollIn {
+            0% {
+                transform: translateX(-100px) rotate(-120deg);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .text-shuffle {
+            height: 1.5em;
+            /* height of one line */
+            overflow: hidden;
+            position: relative;
+        }
+
+        .text-shuffle div {
+            animation: shuffle 6s infinite;
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            opacity: 0;
+        }
+
+        .text-shuffle div:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .text-shuffle div:nth-child(2) {
+            animation-delay: 2s;
+        }
+
+        .text-shuffle div:nth-child(3) {
+            animation-delay: 4s;
+        }
+
+        @keyframes shuffle {
+            0% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            10%,
+            40% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        .animated-border {
+            padding: 10px;
+            position: relative;
+            top: -10px;
+            font-size: 1.2rem;
+            background: #fff;
+            position: relative;
+            border-radius: 10px;
+            z-index: 1;
+        }
+
+
+        .animated-border {
+            position: relative;
+            padding: 1rem 2rem;
+            background: #ffffff;
+            border-radius: 30px;
+            z-index: 1;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+            text-align: center;
+            height: 70px;
+            width: 250px;
+            justify-content: center;
+        }
+
+        .animated-border::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            z-index: -1;
+            border-radius: 15px;
+            background: linear-gradient(270deg, #B0E0E6, #D0F0C0, #ecfda1, #FFDAB9, #FFFACD);
+            background-size: 800% 800%;
+            animation: borderMove 12s ease infinite;
+        }
+
+        @keyframes borderMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Toggle Switch */
+        .theme-toggle {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #2e7d32;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Dark Theme Overrides */
+        body.dark-mode {
+            background: linear-gradient(to bottom right, #2c3e50, #1c1c1c);
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .header {
+            background: linear-gradient(to right, #333, #111);
+            border-bottom: 1px solid #555;
+        }
+
+        body.dark-mode .title {
+            color: #a2ff9e;
+        }
+
+        body.dark-mode .content a {
+            color: #90caf9;
+        }
+
+        body.dark-mode input[type="search"] body.dark-mode input:hover {
+            border-color: #a2ff9e;
+        }
+
+        body.dark-mode .animated-border {
+            background: #222;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode .animated-border::before {
+            background: linear-gradient(270deg, #444, #0d0233, #666, #033b06);
+        }
+
+        /* Fix for bouncing title (Physics) */
+
+
+        /* Fix all text to be visible in dark mode */
+        body.dark-mode,
+        body.dark-mode .content,
+        body.dark-mode .content p,
+        body.dark-mode .content li,
+        body.dark-mode .content h3,
+        body.dark-mode .content b,
+        body.dark-mode .content i,
+        body.dark-mode .content u {
+            color: #e6e6e6 !important;
+        }
+
+        /* Fix for anchor tag colors in dark mode */
+        body.dark-mode a {
+            color: #89cfff;
+        }
+
+        /* Fix the created-by section visibility */
+        body.dark-mode .animated-border {
+            background: #1c1c1c !important;
+            color: #fff !important;
+        }
+
+        /* Enhance visibility of the shuffle text */
+        body.dark-mode .text-shuffle div {
+            color: #fff !important;
+        }
+
+        body,
+        .animated-border,
+        .header,
+        .content,
+        input {
+            transition: all 0.004s ease;
+
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 10px 20px;
+            background: linear-gradient(to right, #e8f5e9, #fefae0);
+            border-bottom: 1px solid #ccc;
+        }
+
+        .header-title-toggle {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .theme-toggle span {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 600px) {
+            .header-title-toggle {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .theme-toggle {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <img class="duyar"
+            src="https://raw.githubusercontent.com/duyare-physics/turbo/main/Picsart_25-05-08_12-47-40-575.jpg"
+            alt="Mobile Data chalu kr bhai🤔🤨" class="logo">
+        <div class="header-title">
+            <div class="title"><b>Physics</b>🍎</div>
+        </div>
+    </div>
+
+
+    <div class="content">
+        <div class="qr">
+            <div class="theme-toggle">
+                <span>🌞</span>
+                <label class="switch" title="Toggle theme">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span>🌙</span>
+            </div>
+            <table class="qr">
+                <tr>
+                    <td>
+                        <img class="qr" src="https://raw.githubusercontent.com/duyare-physics/turbo/main/Qr%20Code.jpg"
+                            alt="telegram channel">
+                    </td>
+                    <td><a href="https://t.me/pp542023"><b><i> For more knowledge check this channel </i></b></a><b
+                            class="emo">🧐</b></td>
+                </tr>
+            </table>
+
+            <h3><i><u>physics</u>:-</h3><b class="emo">⚡⚡</b>Physics is the branch of science that studies matter,
+            energy, and the
+            fundamental forces of nature, explaining how the universe behaves through laws and principles.<b
+                class="emo">⚡⚡</b>
+            </i>
+            <br>
+            <p class="tab"><b>Type here to search topics (English & Bengali) </b> <b class="emo">👀</b></p>
+        </div>
+        <input type="search" id="searchInput" placeholder="     ..Search topics......">
+        <ul id="itemList">
+            <li><b>Dictionary & Constants</b></li>
+            <li><b>Mechanics</b></li>
+            <ol type="i">
+                <li><b><i> Classical Mechanics</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1MiZ-Ovg3O0B99LnQVqY-33ugOIAyHezPtjU_ZPYl510/edit?usp=drive_link">Physical
+                            World and Measurement</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1sEzzPjldyS-RbMDmuHX5NSetmzX5Jh-H_aOffIo_Acc/edit?usp=drive_link">Vector
+                            component</a> </li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1jm02zoJN6fR8FfGLVvbRws2l7RtCGLgfRRao_OXKTU8/edit?usp=drive_link">
+                            Constant Velocity</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1eZzXvKNlb42jOeYPifWLti6-5tyXOsl8Li7DhE6jAbY/edit?usp=drive_link">Constant
+                            Acceleration</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1ppaWVJEBrUHRs5zSPdHwdID104PjdZM476krQFqNx1E/edit?usp=drive_link">
+                            Friction</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1dxu4zqAM74Vuix77JFJLNgOJUVjGidrwP6GS3wdOKWg/edit?usp=drive_link">
+                            Momentum</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1kz8vabaZKFMazfuQTvv7jyl4wbsTm6fev5GJX8mHf-c/edit?usp=drive_link">
+                            motion in a straight line</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1_55V1Ro-4UgCUXFrbZjN48fXybyh2rr9wwqEMmWVXj0/edit?usp=drive_link">
+                            Projectile Motion</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1aTviejS-ozi9ZNBvlewZzkxppf25GFfvv5FlrD8rTTg/edit?usp=sharing">
+                            Circular Motion</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1E5MPMQImRkJA1pUiWzVf1EZzFHpCyjlhLU9soUfuyQ8/edit?usp=drive_link">
+                            Laws of Motion</a> </li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1RqK8V3ejFWmoNJcEYx2-SETB4jw0Pg-kf_elioLll2Q/edit?usp=drive_link">
+                            Work , power , energy</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1HXWgzt6owOhUxYtIUO6ZePEdQQ7uq9vZkluIL3jZSNY/edit?usp=drive_link">
+                            Gravitation</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1LGd5gpaEbwVvkvDZFZxOhs5aBuLxuHQF1Z2NzV83lZU/edit?usp=sharing">
+                            Static Equilibrium</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/196PD2xYTLCrC8W2w0-420DzsYoiY7MIs2uzZIkx4Kw4/edit?usp=drive_link">
+                            Elasticity</a></li>
+                </ol>
+                <li><b><i>Fluid Mechanics </i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1mQDnh1-9k84-cN2Q98hrVPpu1p1_PzpGF4KS0t6ozq0/edit?usp=drive_link">hydrostatics
+                            and atmospheric pressure</a> </li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1qI3Yo_xvdotGSIK1Hc-Per-gW5iN_-RgUkvYic7wUTI/edit?usp=drive_link">
+                            Viscosity and surface tension</a></li>
+                </ol>
+            </ol>
+            <li><b> Oscillations & Waves ( কম্পন ও তরঙ্গ )</b></li>
+            <ol type="1">
+                <li><a
+                        href="https://docs.google.com/document/d/10wOUZ9oi6J3XK0bL7weKj87kfJPNkCAZdyFbyCVoFsA/edit?usp=drive_link">
+                        SHM (Simple Harmonic Motion )</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1BPSoosF_fekzthAfNUrXdcqN1iN3xfuMpVlepHJKRT4/edit?usp=drive_link">
+                        Nature of vibration</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/15lIrb-Z8Qyq3k5lAbjWc4l3Lujfq2SQXpbgHqJLAdck/edit?usp=drive_link">
+                        Wave Speed</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1QeIRPxI13BYDhRnYwvKfejkP8l7LW7nx-yfdHiZh1sg/edit?usp=drive_link">
+                        overlap of waves</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1nz0xrQa4HuGB9KUN4bg93zODgWKWbwJP15VkWzoCkPY/edit?usp=drive_link">
+                        Doppler Function of Sound</a></li>
+            </ol>
+            <li><b>Thermal Physics ( তাপজনিত বিদ্যা )</b></li>
+            <ol type="1">
+                <li><a
+                        href="https://docs.google.com/document/d/1yCr33ID24Al73-vvjQGS-iLf0AzqNFaAbuwt7a71idM/edit?usp=drive_link">
+                        Thermodynamics</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1nc88IUTGWjIj03LW_JD_2g9nREIvXt0aTua7m0J1Rbs/edit?usp=drive_link">
+                        Thermometry</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1IYtln4HrBE4P9dmV2CP1mHH6xJI8jXAD4afCHqXSTas/edit?usp=drive_link">
+                        Expansion of Solids & Liquids</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/16vWlvMpEbjnFDQrcn1TVsnag5vVgqUn66Ua4Y6m5Hlk/edit?usp=drive_link">
+                        Expansion of Gases</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1p-8RI2oS1DMWvJvWZvOc1N8cKtzlRTU-fuimS7eJk_E/edit?usp=drive_link">
+                        Calorimetry</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1qXPsf3Vdlf4xjQCyqkfuJGKt-fPCb_bNKKkpA2LpW6U/edit?usp=drive_link">
+                        Change of State</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1simPkwx-321vEwm_8lXRFLk1jZ9UiLMtjtmk05QRBEY/edit?usp=drive_link">
+                        Transmission of Heat</a></li>
+            </ol>
+            <li><b>Electrostatics ( স্থির-তড়িৎ )</b></li>
+            <ol type="1">
+                <li><a
+                        href="https://docs.google.com/document/d/1lGviYmzUU0Epotd2oe6gYxT8vhUpMTyUxJcpMOVVsMA/edit?usp=drive_link">
+                        Elementary Phenomena of Electrostatics</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1L0AwEy0Sv9tPwhxsGqW33UpUkY2adWQI2VK3XDfUQl0/edit?usp=drive_link">
+                        Electric Field</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1K98B4lteTjGO4NuwZTlXCMQzCU9eYG6cOBafnshhT2o/edit?usp=drive_link">
+                        Electric Potential</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1PPtYzXxhbl46I6RcrCEIojsnQHRm9lm-5aBNqjOAojw/edit?usp=drive_link">
+                        Capacitance & capacitor</a></li>
+            </ol>
+            <li><b> Current Electricity ( প্রবাহী তড়িৎ )</b></li>
+            <ol type="1">
+                <li><a
+                        href="https://docs.google.com/document/d/1VaQT8WGWYLO8FNwK72ed_yF7glHH4N-C4C96cD6FP-0/edit?usp=drive_link">
+                        Electric Current & Ohm's law</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1d2yg8n74XDpsOc2SJeCMFOZIAU9L9preu9jMZdJ8Bdc/edit?usp=drive_link">
+                        Kirchhoff's law & Electrical Measurement</a></li>
+                <li><a
+                        href="https://docs.google.com/document/d/1pwtvKmmG0zjxEJeT3Q6_B360RmFn_qyzdTsMdnX0KTE/edit?usp=drive_link">
+                        Electric energy & power</a></li>
+            </ol>
+            <li><b>Electricity & Magnetism </b></li>
+            <ol type="i">
+                <li><b> Magnetic effect of Current & Magnetism ( তড়িৎপ্রবাহের চৌম্বক ক্রিয়া ও চুম্বকত্ব )</b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1lThseVkzMwCVDDq0rusth0c_McohtLqBy3q5BKBtChA/edit?usp=drive_link">
+                            Electromagnetism</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1AN-r2Db4Pv0CmcF0TGqlcmyBKsnbdaec7IdVybNAH-o/edit?usp=drive_link">Magnetic
+                            properties of matter</a></li>
+                </ol>
+                <li><b>Electromagnetic Induction & Alternating Current ( তড়িৎ চুম্বকীয় আবেশ ও পরিবর্তী প্রবাহ )</b>
+                </li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1B3WrqtCzH60kBxdLYCxYcl0KJ0tgAwe8cT_2OOcqvUs/edit?usp=drive_link">Electromagnetic
+                            Induction</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1yJtx7laWf3zg6S0U7fECvLcELQUfkIIgrONGsLFe5E8/edit?usp=drive_link">
+                            Alternating Current</a></li>
+                </ol>
+                <li><b>Electromagnetic Waves ( তড়িৎ চুম্বকীয় তরঙ্গ )</b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1hsBmKSpytOSkVJAUSwskQRJEuhK7j1JmJdCEsgjI9J4/edit?usp=drive_link">
+                            Electromagnetic Waves</a></li>
+                </ol>
+            </ol>
+            <li><b>Optics ( আলো )</b></li>
+            <ol type="i">
+                <li><b><i>Ray Optics</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1HuPzA3xnrml5-0xCkeWhQ42K0I6zi4h9F31tMOyhZao/edit?usp=drive_link">Reflection
+                            of light</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1Q1V8nPTEUumvOoP-z4LeA0loZvL5sQAObQNi-WwPX9c/edit?usp=drive_link">Refraction
+                            of light</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1pt5z8zdIo48gKPFywcz8qCfH0-2gAdtxzRWTPOmphzY/edit?usp=drive_link">Refraction
+                            of light at Spherical Surface : lens</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1jhvItqUeIBdT5blgLKav0nc6XeBNU8heHOVvnAPbaos/edit?usp=drive_link">
+                            Dispersion and Scattering of Light</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1YNVbpoko_o1x0iB2hRMget2BYlUmePpiUVj-w5LL7Xw/edit?usp=drive_link">
+                            Optical Instruments</a></li>
+                </ol>
+                <li><b><i>Physical Optics</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/12RIW9sW1Lyz_qu2ocKRHAa74J9a3ovvtmJ0OW98Mjxc/edit?usp=drive_link">
+                            Light wave & interference of light</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1KidEXMlCaSJFmDWf-5Uc3RDLAgJNG_DPxFn2qC8GvAw/edit?usp=drive_link">
+                            Diffraction & Polarisation of light</a></li>
+                </ol>
+            </ol>
+            <li><b>Modern Physics ( আধুনিক পদার্থবিদ্যা )</b></li>
+            <ol type="i">
+                <li><b><i>Dual Nature of Radiation</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1pa8-AyOtNPwMou-eq7SxkeClRARtzYrDQtsE6ESLzFE/edit?usp=drive_link">Quantum
+                            theory</a> </li>
+                </ol>
+                <li><b><i>Atoms & Nuclei</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1A6_tfZtTJvpcVe8lkpK6t61eTeDGXe6vxbwk_X0sEF0/edit?usp=drive_link">
+                            Atom</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1WOygCkjnqbtmj_J92DAP1syj3jL1eQCZyVK8zELqkS8/edit?usp=drive_link">
+                            Atomic Nucleus</a></li>
+                </ol>
+                <li><b><i>Electronics</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1Iif0tGMk5OIlUxRCxBvB0L3y822KHnJOphNWpyyYD9w/edit?usp=drive_link">
+                            Semiconductors & Electronics</a></li>
+                    <li><a
+                            href="https://docs.google.com/document/d/1bBWZqlHxeuKBcDdZUbdSPtPaxHpRn5auBLNhp_jAPXk/edit?usp=drive_link">Digital
+                            Circuits</a> </li>
+                </ol>
+                <li><b><i>Communication Systems</i></b></li>
+                <ol type="1">
+                    <li><a
+                            href="https://docs.google.com/document/d/1NCkLFiC4mytBPYnmF2mmFT1vw6NkVwcNlCWZEst_AHg/edit?usp=drive_link">
+                            Communication Systems</a></li>
+                </ol>
+            </ol>
+
+        </ul>
+        <script>
+            //search items
+            document.getElementById('searchInput').addEventListener('keyup', function () {
+                const filter = this.value.toLowerCase();
+                const items = document.querySelectorAll('#itemList li');
+
+                items.forEach(function (item) {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(filter) ? '' : 'none';
+                });
+            });
+            //toggle theme
+            const toggle = document.getElementById('themeToggle');
+            toggle.addEventListener('change', function () {
+                document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', this.checked ? 'dark' : 'light');
+            });
+
+
+            window.addEventListener('DOMContentLoaded', () => {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    toggle.checked = true;
+                }
+            });
+        </script>
+    </div>
+    <div class="footer">
+        <footer>
+            <p class="footer">
+                <font color="green" size="4" face="times new roman"> For any enquiry tap on this link ...<b
+                        class="blink">👉</b> </font>
+                <a href="mailto:duyarephysics@gmail.com">duyarephysics@gmail.com</a>
+            </p><br>
+            <div class="animated-border">
+                <center><b><u>created by~</u></b>
+                    <div class="text-shuffle">
+                        <div>Ankit Dna</div>
+                        <div>Ankit Rana</div>
+                        <div>Rwitankar Singha Roy</div>
+                    </div>
+                </center>
+            </div>
+    </div>
+</body>
+
+</html>
