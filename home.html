@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics🍎 </title>
+    <link rel="icon" href="https://raw.githubusercontent.com/duyare-physics/turbo/main/favicon_logo.jpg"
+        type="image/png">
+
+    <style>
+        /* ---------- BASIC RESET ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to bottom right, #d4edda, #fffbe6);
+            color: #333;
+            transition: all .4s ease;
+        }
+
+        /* ---------- HEADER ---------- */
+        .header {
+            text-align: center;
+            padding: 10px 0;
+            background: linear-gradient(to right, #e8f5e9, #fefae0);
+            border-bottom: 1px solid #ccc;
+            position: relative;
+        }
+
+        .header img.duyar {
+            border-radius: 10px;
+            height: 60px;
+            width: 85px;
+            transition: .3s;
+        }
+
+        .header img.duyar:hover {
+            border-radius: 0;
+            border: 2px solid green;
+        }
+
+        .title {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2e7d32;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-10px)
+            }
+        }
+
+        /* ---------- NAVBAR ---------- */
+        nav {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+            z-index: 10;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            padding: 8px;
+        }
+
+        nav ul li {
+            position: relative;
+        }
+
+        nav ul li a,
+        nav ul li button {
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #2e7d32;
+            padding: 6px 8px;
+            font-size: .95rem;
+            transition: .3s;
+        }
+
+        nav ul li a:hover,
+        nav ul li button:hover {
+            color: #0077cc;
+        }
+
+        /* ---------- DROPDOWN ---------- */
+        .dropdown:hover>ul {
+            display: flex;
+            /* show when hovered */
+        }
+
+        .dropdown ul {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 34px;
+            left: 0;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            min-width: 160px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+
+        .dropdown ul li a {
+            display: block;
+            padding: 8px 12px;
+            color: #2e7d32;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+
+        .dropdown ul li a:hover {
+            background: #c8facc;
+            border-radius: 5px;
+        }
+
+        /* ---------- HAMBURGER ---------- */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 12px;
+        }
+
+        .hamburger div {
+            width: 25px;
+            height: 3px;
+            background: #2e7d32;
+            margin: 3px 0;
+            transition: .3s;
+        }
+
+        /* ---------- MOBILE ---------- */
+        @media(max-width:768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            nav ul {
+                flex-direction: column;
+                display: none;
+                width: 100%;
+                background: #fff;
+            }
+
+            nav ul.active {
+                display: flex;
+            }
+
+            .dropdown ul {
+                position: static;
+                border: none;
+                box-shadow: none;
+                background: transparent;
+            }
+
+            .dropdown.open ul {
+                display: flex;
+            }
+
+            .dropdown ul li a {
+                padding-left: 30px;
+            }
+        }
+
+        /* ---------- NOTICE ---------- */
+        #notice {
+            background: #fff8c4;
+            border-left: 6px solid #ffcc00;
+            padding: 10px 20px;
+            margin: 20px auto;
+            width: 85%;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ---------- SECTIONS ---------- */
+        .section-box {
+            border: 2px solid #2e7d32;
+            /* Green border */
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            transition: 0.3s;
+        }
+
+        .section-box:hover {
+            border-color: #1b5e20;
+            /* Darker green on hover */
+        }
+
+        /* Dark mode section borders */
+        body.dark-mode .section-box {
+            border: 2px solid #a2ff9e;
+            /* Light green in dark mode */
+        }
+
+        body.dark-mode .section-box:hover {
+            border-color: #7de37f;
+        }
+
+        section {
+            padding: 40px 20px;
+            min-height: 40vh;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: .8s ease;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        section:nth-child(odd) {
+            background: #fefae0;
+        }
+
+        section:nth-child(even) {
+            background: #d4edda;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        /* ---------- THEME TOGGLE ---------- */
+        .theme-toggle {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            border-radius: 34px;
+            transition: .4s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: .4s;
+        }
+
+        input:checked+.slider {
+            background: #2e7d32;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        /* ---------- FOOTER ---------- */
+        footer {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(to right, #e8f5e9, #fefae0);
+            border-top: 1px solid #ccc;
+            font-size: .85rem;
+            color: #333;
+        }
+
+        footer a {
+            color: #2e7d32;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #0077cc;
+        }
+
+        /* ---------- DARK MODE ---------- */
+        /* ---------- DARK MODE FIX ---------- */
+        body.dark-mode {
+            background: linear-gradient(to bottom right, #1c1c1c, #2c3e50);
+            color: #f1f1f1;
+        }
+
+        body.dark-mode section {
+            background: #1e1e1e;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode nav {
+            background: #222;
+            border-color: #444;
+        }
+
+        body.dark-mode nav ul li a,
+        body.dark-mode nav ul li button {
+            color: #a2ff9e;
+        }
+
+        body.dark-mode nav ul li a:hover,
+        body.dark-mode nav ul li button:hover {
+            color: #fff;
+        }
+
+        /* Dropdown dark fix */
+        body.dark-mode .dropdown ul {
+            background: #222;
+            border: 1px solid #444;
+        }
+
+        body.dark-mode .dropdown ul li a {
+            color: #a2ff9e;
+        }
+
+        body.dark-mode .dropdown ul li a:hover {
+            background: #2e7d32;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        /* Notice section */
+        body.dark-mode #notice {
+            background: #333;
+            border-left: 6px solid #ffcc00;
+            color: #fff;
+        }
+
+        /* Footer */
+        body.dark-mode footer {
+            background: #111;
+            border-color: #333;
+            color: #f1f1f1;
+        }
+
+        body.dark-mode footer a {
+            color: #a2ff9e;
+        }
+
+        .section-btn {
+            background: #2e7d32;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .section-btn:hover {
+            background: #1b5e20;
+        }
+
+        /* Dark mode button */
+        body.dark-mode .section-btn {
+            background: #a2ff9e;
+            color: #000;
+        }
+
+        body.dark-mode .section-btn:hover {
+            background: #7de37f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <img class="duyar"
+            src="https://raw.githubusercontent.com/duyare-physics/turbo/main/Picsart_25-05-08_12-47-40-575.jpg"
+            alt="logo">
+        <div class="title">Physics🍎</div>
+
+        <div class="theme-toggle">
+            🌞
+            <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider"></span>
+            </label>
+            🌙
+        </div>
+
+        <nav>
+            <div class="hamburger" id="hamburger">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <ul id="nav-links">
+                <li><a href="#home">Home</a></li>
+
+
+                <!-- Dropdown -->
+                <li class="dropdown" id="classMenu">
+                    <button class="dropbtn">Classes ▼</button>
+                    <ul>
+                        <li><a href="#class9">Class 9–10</a></li>
+                        <li><a href="#class11">Class 11–12</a></li>
+                        <li><a href="#jee">JEE–NEET</a></li>
+                    </ul>
+                </li>
+
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div id="notice"><b>Notice:</b> some services coming soon....
+    </div>
+
+    <section id="home">
+        <h2>Home</h2>
+        <center>
+            <p>Welcome to our Physics learning platform.<br>
+                Here you can get class notes & exam Preparation etc.
+                <!-- </p> section-btn -->
+        </center>
+    </section>
+    <section id="class9" class="section-box">
+        <h2>Class 9–10</h2>
+        <center>
+            <p><strong> Coming soon....</strong></p>
+            <button class="section-btn">Explore Class 9</button>
+            <button class="section-btn">Explore Class 10</button>
+        </center>
+    </section>
+
+    <section id="class11" class="section-box">
+        <h2>Class 11–12</h2>
+        <center>
+            <a href="https://duyare-physics.github.io/turbo/eleven.html"><button class="section-btn">Explore Class
+                    11</button></a>
+            <a href="https://duyare-physics.github.io/turbo/twelve.html"><button class="section-btn">Explore Class
+                    12</button></a>
+        </center>
+    </section>
+
+    <section id="jee" class="section-box">
+        <h2>JEE–NEET</h2>
+        <center>
+            <p><strong> Coming soon....</strong></p>
+            <button class="section-btn">Explore JEE</button>
+            <button class="section-btn">Explore NEET</button><br>
+            <button class="section-btn">Explore Mock Test</button>
+        </center>
+    </section>
+    <section id="contact">
+        <h2>Contact</h2>
+        Email: <a href="mailto:duyarephysics@gmail.com">duyarephysics@gmail.com</a>
+    </section>
+
+    <footer>
+        <p>© <span id="year"></span> <b>দুয়ারে Physics</b>. All Rights Reserved. | Created by
+            <a href="https://arnetworkhouse-oss.github.io/ar-network-house/ar_network.html" target="_blank">AR Network
+                House</a> | <a href="https://docs.google.com/document/d/1CCccB1lkWzcU0NxthEdcbzJC4Rwl1Gdr5XQl62LhtDU/edit?tab=t.0">Policy</a>
+        </p>
+    </footer>
+
+    <script>
+        /* ---------- DARK MODE ---------- */
+        const toggle = document.getElementById('themeToggle');
+        toggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', toggle.checked ? 'dark' : 'light');
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') { document.body.classList.add('dark-mode'); toggle.checked = true; }
+            document.getElementById('year').textContent = new Date().getFullYear();
+        });
+
+        /* ---------- HAMBURGER ---------- */
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+        hamburger.addEventListener('click', () => navLinks.classList.toggle('active'));
+
+        /* ---------- MOBILE DROPDOWN ---------- */
+        const classMenu = document.getElementById('classMenu');
+        const dropBtn = classMenu.querySelector('.dropbtn');
+        dropBtn.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                classMenu.classList.toggle('open');
+            }
+        });
+
+        /* ---------- SECTION FADE-IN ---------- */
+        const sections = document.querySelectorAll('section');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.2 });
+        sections.forEach(s => observer.observe(s));
+    </script>
+</body>
+
+</html>
