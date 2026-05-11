@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MCQ Exam</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060b14;
+    --surface: #0d1829;
+    --surface2: #111e33;
+    --border: #1e3050;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --green: #00ff87;
+    --warn: #fbbf24;
+    --red: #ff4757;
+    --text: #e2eaf4;
+    --muted: #5a7a9a;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .text-input {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; top: -120px; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,229,255,0.07) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── SCREENSHOT OVERLAY ── */
+  .screenshot-overlay {
+    display: none; position: fixed; inset: 0;
+    background: #060b14; z-index: 9999;
+    align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+  }
+  .screenshot-overlay.active { display: flex; }
+  .screenshot-overlay p { color: var(--red); font-size: 16px; font-weight: 600; text-align: center; padding: 0 32px; }
+  body.blurred #exam, body.blurred #loading { filter: blur(20px); }
+
+  /* ── LIGHTBOX ── */
+  .img-lightbox {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92); z-index: 200;
+    align-items: center; justify-content: center;
+    padding: 16px; flex-direction: column; gap: 12px;
+  }
+  .img-lightbox.open { display: flex; }
+  .img-lightbox img { max-width: 100%; max-height: 80vh; object-fit: contain; border-radius: 12px; border: 1px solid var(--border); }
+  .img-lightbox-close {
+    padding: 10px 28px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; color: var(--muted); font-family: 'Sora', sans-serif; font-size: 14px; cursor: pointer;
+  }
+
+  /* ── SCREENS ── */
+  .screen { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+  #login { justify-content: center; align-items: center; padding: 24px 20px; }
+
+  /* ── BRAND ── */
+  .brand { text-align: center; margin-bottom: 32px; }
+  .brand-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 18px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; box-shadow: 0 0 30px rgba(0,229,255,0.25);
+  }
+  .brand-icon svg { width: 32px; height: 32px; fill: #fff; }
+  .brand h1 {
+    font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .brand p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  /* ── EXAM INFO BOX ── */
+  .exam-info-box {
+    width: 100%; max-width: 400px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    padding: 13px 16px;
+    display: flex; align-items: flex-start; gap: 11px;
+    background: rgba(251,191,36,0.08);
+    border: 1.5px solid rgba(251,191,36,0.35);
+    animation: fadeSlideInfo 0.4s ease;
+  }
+  @keyframes fadeSlideInfo { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+  .exam-info-box.no-negative {
+    background: rgba(0,229,255,0.06);
+    border-color: rgba(0,229,255,0.25);
+  }
+  .exam-info-icon { flex-shrink: 0; margin-top: 1px; }
+  .exam-info-icon svg { width: 18px; height: 18px; }
+  .exam-info-content { flex: 1; }
+  .exam-info-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--warn); margin-bottom: 5px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .exam-info-box.no-negative .exam-info-title { color: var(--accent); }
+  .exam-info-rows { display: flex; flex-direction: column; gap: 4px; }
+  .exam-info-row {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 12.5px; color: var(--text); font-weight: 400; line-height: 1.5;
+  }
+  .exam-info-row .pill {
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 100px; flex-shrink: 0;
+  }
+  .pill-green { background: rgba(0,255,135,0.15); color: var(--green); border: 1px solid rgba(0,255,135,0.3); }
+  .pill-red   { background: rgba(255,71,87,0.15);  color: var(--red);   border: 1px solid rgba(255,71,87,0.3); }
+  .pill-cyan  { background: rgba(0,229,255,0.12);  color: var(--accent); border: 1px solid rgba(0,229,255,0.25); }
+  .exam-info-warn-note {
+    margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--warn);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .exam-info-box.hidden { display: none; }
+
+  /* ── LOGIN CARD ── */
+  .login-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .exam-name-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .exam-name-value {
+    font-size: 17px; font-weight: 700; color: var(--accent);
+    margin-bottom: 18px; min-height: 24px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .name-spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .login-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #fff; width: 100%; }
+  .login-fields { width: 100%; text-align: left; }
+  .field-group { margin-bottom: 14px; }
+  .field-label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+  .text-input {
+    width: 100%; padding: 14px 16px;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'Sora', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s;
+  }
+  .text-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,0.1); }
+  .btn-primary {
+    width: 100%; padding: 15px; margin-top: 6px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600;
+    border: none; border-radius: var(--radius); cursor: pointer; transition: opacity 0.2s, transform 0.1s;
+    position: relative; overflow: hidden;
+  }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-primary:not(:disabled):active { transform: scale(0.98); opacity: 0.85; }
+  .btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 40%, rgba(255,255,255,0.08)); }
+  .error-msg {
+    margin-top: 12px; padding: 12px 14px;
+    background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.3);
+    border-radius: var(--radius); color: var(--red); font-size: 13px; line-height: 1.5;
+    display: none; width: 100%; text-align: left;
+  }
+
+  /* ── EXAM HEADER ── */
+  .exam-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 0 16px; position: sticky; top: 0; z-index: 50;
+  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 10px; }
+  .exam-title { font-size: 13px; font-weight: 600; color: #fff; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .timer-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 100px; padding: 6px 10px; flex-shrink: 0;
+  }
+  .timer-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse 1.4s ease-in-out infinite; }
+  .timer-dot.warn { background: var(--warn); }
+  .timer-dot.danger { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  #time { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--green); min-width: 42px; }
+  #time.warn { color: var(--warn); }
+  #time.danger { color: var(--red); }
+
+  /* Submit top-right button */
+  .btn-submit-top {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #00c853, #00e5ff);
+    color: #060b14; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700;
+    border: none; border-radius: 100px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+    box-shadow: 0 2px 12px rgba(0,229,255,0.25);
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-submit-top:active { transform: scale(0.96); opacity: 0.85; }
+
+  .progress-bar-wrap { height: 3px; background: var(--border); }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.4s ease; }
+
+  .q-counter-bar { display: flex; align-items: center; justify-content: center; padding: 10px 16px 8px; }
+  .q-counter-text { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
+  .q-counter-text span { color: var(--accent); font-weight: 700; }
+
+  .dot-strip-wrap { padding: 0 16px 10px; overflow-x: auto; scrollbar-width: none; }
+  .dot-strip-wrap::-webkit-scrollbar { display: none; }
+  .dot-strip { display: flex; gap: 5px; width: max-content; min-width: 100%; justify-content: center; }
+  .dot {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--surface2);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: var(--muted);
+    border: 1.5px solid var(--border); transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .dot.visited { background: rgba(251,191,36,0.18); border-color: var(--warn); color: var(--warn); }
+  .dot.answered { background: rgba(0,255,135,0.15); border-color: var(--green); color: var(--green); }
+  .dot.current { background: var(--accent); border-color: var(--accent); color: #060b14; transform: scale(1.2); box-shadow: 0 0 8px rgba(0,229,255,0.6); }
+  .dot.answered.current { background: var(--accent); border-color: var(--accent); color: #060b14; }
+
+  /* ── QUESTION CARD ── */
+  .question-viewport { flex: 1; padding: 16px 16px 90px; display: flex; flex-direction: column; }
+  .q-card-single {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden; flex: 1; display: flex; flex-direction: column;
+    animation: fadeSlide 0.22s ease;
+  }
+  @keyframes fadeSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .q-card-single.answered { border-color: rgba(0,229,255,0.3); }
+  .q-top-single { display: flex; align-items: flex-start; gap: 12px; padding: 20px 18px 14px; }
+  .q-num {
+    flex-shrink: 0; width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: #fff;
+  }
+  .q-text-single { font-size: 17px; line-height: 1.7; color: var(--text); flex: 1; padding-top: 4px; }
+
+  .q-image-wrap { padding: 0 18px 14px; }
+  .q-image-thumb { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; display: block; transition: opacity 0.2s; }
+  .q-image-thumb:active { opacity: 0.8; }
+  .img-hint { font-size: 11px; color: var(--muted); margin-top: 6px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 4px; }
+
+  .q-options-single { padding: 0 14px 10px; display: flex; flex-direction: column; gap: 9px; }
+  .option-row-single {
+    display: flex; align-items: flex-start; gap: 12px; padding: 13px 14px;
+    background: var(--surface2); border-radius: 12px; border: 1.5px solid transparent;
+    cursor: pointer; transition: border-color 0.15s, background 0.15s; user-select: none;
+  }
+  .option-row-single:active { background: rgba(0,229,255,0.05); }
+  .option-row-single.selected { border-color: var(--green); background: rgba(0,255,135,0.07); }
+  .option-letter-single {
+    flex-shrink: 0; width: 28px; height: 28px; background: var(--border);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+  }
+  .option-row-single.selected .option-letter-single { background: var(--green); color: #060b14; }
+  .option-text-single { font-size: 15px; line-height: 1.55; color: var(--muted); flex: 1; padding-top: 3px; transition: color 0.15s; }
+  .option-row-single.selected .option-text-single { color: var(--text); }
+
+  .answer-badge-row { padding: 8px 16px 16px; display: flex; align-items: center; gap: 8px; margin-top: auto; flex-wrap: wrap; }
+  .answer-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; font-family: 'Space Mono', monospace; }
+  .answer-badge.selected { background: rgba(0,255,135,0.12); color: var(--green); border: 1px solid rgba(0,255,135,0.3); }
+  .answer-badge.none { background: rgba(90,122,154,0.1); color: var(--muted); border: 1px solid var(--border); }
+  .btn-clear {
+    display: inline-flex; align-items: center; gap: 5px; padding: 6px 13px;
+    border-radius: 100px; font-size: 12px; font-weight: 600; font-family: 'Space Mono', monospace;
+    background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.28);
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn-clear:active { opacity: 0.7; }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding: 10px 16px 20px;
+    background: linear-gradient(transparent, var(--bg) 28%);
+    z-index: 40;
+  }
+  .nav-row { display: flex; gap: 10px; align-items: center; }
+  .btn-nav {
+    flex: 1; padding: 15px; background: var(--surface); color: var(--text);
+    font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600;
+    border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-nav:disabled { opacity: 0.3; cursor: default; }
+  .btn-nav:not(:disabled):active { transform: scale(0.97); }
+  .btn-nav.next { border-color: rgba(0,229,255,0.3); color: var(--accent); }
+
+  /* ── LOADING ── */
+  .loading-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 40px; }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-wrap p { color: var(--muted); font-size: 14px; text-align: center; }
+
+  /* ── MODALS ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 100; align-items: flex-end; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 480px; animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .modal-sheet h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .modal-sheet .modal-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+  .modal-icon svg { width: 36px; height: 36px; }
+  .modal-sheet p { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+  .modal-sheet p span { color: var(--warn); font-weight: 600; }
+  .modal-sheet p span.danger { color: var(--red); }
+  .modal-btns { display: flex; flex-direction: column; gap: 10px; }
+  .btn-confirm { padding: 15px; background: linear-gradient(135deg, #00c853, #00e5ff); color: #060b14; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; }
+  .btn-confirm.danger-btn { background: linear-gradient(135deg, var(--red), #ff8c00); color: #fff; }
+  .btn-cancel { padding: 15px; background: transparent; color: var(--muted); font-family: 'Sora', sans-serif; font-size: 15px; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; }
+
+  /* ── RESULT / DASHBOARD ── */
+  #result { padding: 0; align-items: stretch; }
+
+  .result-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 16px 20px; position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .result-header h2 { font-size: 16px; font-weight: 700; color: #fff; }
+
+  .btn-pdf {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 100px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+    border: none; cursor: pointer; flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 2px 12px rgba(124,58,237,0.3);
+  }
+  .btn-pdf:active { transform: scale(0.96); opacity: 0.85; }
+
+  .result-body { padding: 20px 16px 40px; flex: 1; }
+
+  /* Score card */
+  .score-card {
+    background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(0,229,255,0.12));
+    border: 1px solid rgba(0,229,255,0.25);
+    border-radius: 20px; padding: 24px 20px; margin-bottom: 20px; text-align: center;
+  }
+  .score-name { font-size: 14px; color: var(--muted); margin-bottom: 12px; }
+  .score-big { font-family: 'Space Mono', monospace; font-size: 52px; font-weight: 700; line-height: 1; background: linear-gradient(135deg, var(--accent2), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .score-denom { font-family: 'Space Mono', monospace; font-size: 18px; color: var(--muted); }
+  .score-pct { font-size: 14px; color: var(--green); font-weight: 600; margin-top: 6px; }
+  .score-marking-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 10px; text-align: center; }
+  .stat-box .val { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--accent); display: block; margin-bottom: 4px; }
+  .stat-box .val.green { color: var(--green); }
+  .stat-box .val.red { color: var(--red); }
+  .stat-box .val.warn { color: var(--warn); }
+  .stat-box .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .dash-section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+  /* Question review cards */
+  .review-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; margin-bottom: 12px; overflow: hidden;
+  }
+  .review-card.correct-card { border-color: rgba(0,255,135,0.35); }
+  .review-card.wrong-card { border-color: rgba(255,71,87,0.35); }
+  .review-card.skip-card { border-color: rgba(251,191,36,0.25); }
+
+  .review-q-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+  .review-q-num {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; color: #fff;
+  }
+  .correct-card .review-q-num { background: var(--green); color: #060b14; }
+  .wrong-card .review-q-num { background: var(--red); }
+  .skip-card .review-q-num { background: var(--warn); color: #060b14; }
+
+  .review-q-text { font-size: 14px; line-height: 1.6; color: var(--text); flex: 1; }
+
+  .review-img { width: 100%; max-height: 140px; object-fit: contain; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); cursor: pointer; display: block; margin-bottom: 10px; }
+
+  .review-options { display: flex; flex-direction: column; gap: 6px; }
+  .review-option {
+    display: flex; align-items: center; gap: 8px;
+    padding: 9px 12px; border-radius: 10px;
+    background: var(--surface2); border: 1px solid transparent;
+    font-size: 13px; color: var(--muted);
+  }
+  .review-option .r-letter {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px;
+    background: var(--border); display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: var(--muted);
+  }
+  /* Correct answer highlight */
+  .review-option.is-correct { border-color: rgba(0,255,135,0.4); background: rgba(0,255,135,0.08); color: var(--text); }
+  .review-option.is-correct .r-letter { background: var(--green); color: #060b14; }
+  /* User wrong answer highlight */
+  .review-option.is-user-wrong { border-color: rgba(255,71,87,0.4); background: rgba(255,71,87,0.07); color: var(--text); }
+  .review-option.is-user-wrong .r-letter { background: var(--red); color: #fff; }
+
+  .review-verdict {
+    margin-top: 10px; padding: 6px 12px; border-radius: 100px;
+    font-size: 11px; font-weight: 700; font-family: 'Space Mono', monospace;
+    display: inline-block;
+  }
+  .verdict-correct { background: rgba(0,255,135,0.15); color: var(--green); }
+  .verdict-wrong { background: rgba(255,71,87,0.15); color: var(--red); }
+  .verdict-skip { background: rgba(251,191,36,0.12); color: var(--warn); }
+  .verdict-unvisited { background: rgba(90,122,154,0.1); color: var(--muted); }
+
+  /* ── PRINT / PDF STYLES ── */
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background: #fff !important; color: #111 !important; }
+    body::before, body::after { display: none !important; }
+    .screenshot-overlay, .img-lightbox, .modal-overlay, #login, #loading, #exam { display: none !important; }
+    #result { display: block !important; min-height: auto !important; }
+    .result-header { position: static !important; background: #fff !important; border-color: #ddd !important; }
+    .result-header h2 { color: #111 !important; }
+    .btn-pdf { display: none !important; }
+    .result-body { padding: 0 !important; }
+    .score-card { background: #f0f9ff !important; border-color: #b3e0f7 !important; }
+    .score-big { font-size: 36px !important; -webkit-text-fill-color: #2563eb !important; }
+    .score-denom, .score-name, .score-marking-note { color: #555 !important; }
+    .score-pct { color: #16a34a !important; }
+    .stats-grid { gap: 8px !important; }
+    .stat-box { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+    .stat-box .val { color: #1d4ed8 !important; }
+    .stat-box .val.green { color: #16a34a !important; }
+    .stat-box .val.red { color: #dc2626 !important; }
+    .stat-box .val.warn { color: #d97706 !important; }
+    .stat-box .lbl { color: #64748b !important; }
+    .dash-section-title { color: #64748b !important; }
+    .review-card { background: #fff !important; border-color: #ddd !important; break-inside: avoid; margin-bottom: 10px !important; }
+    .review-card.correct-card { border-color: #86efac !important; }
+    .review-card.wrong-card { border-color: #fca5a5 !important; }
+    .review-card.skip-card { border-color: #fde68a !important; }
+    .review-q-num { color: #111 !important; }
+    .correct-card .review-q-num { background: #22c55e !important; color: #fff !important; }
+    .wrong-card .review-q-num { background: #ef4444 !important; }
+    .skip-card .review-q-num { background: #f59e0b !important; }
+    .review-q-text { color: #111 !important; }
+    .review-option { background: #f8fafc !important; color: #444 !important; }
+    .review-option.is-correct { background: #f0fdf4 !important; border-color: #86efac !important; color: #111 !important; }
+    .review-option.is-correct .r-letter { background: #22c55e !important; color: #fff !important; }
+    .review-option.is-user-wrong { background: #fef2f2 !important; border-color: #fca5a5 !important; color: #111 !important; }
+    .review-option.is-user-wrong .r-letter { background: #ef4444 !important; color: #fff !important; }
+    .r-letter { background: #e2e8f0 !important; color: #334155 !important; }
+    .verdict-correct { background: #f0fdf4 !important; color: #16a34a !important; }
+    .verdict-wrong { background: #fef2f2 !important; color: #dc2626 !important; }
+    .verdict-skip { background: #fffbeb !important; color: #d97706 !important; }
+    .verdict-unvisited { background: #f1f5f9 !important; color: #64748b !important; }
+    .review-img { max-height: 120px !important; }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- SCREENSHOT OVERLAY -->
+<div class="screenshot-overlay" id="screenshotOverlay">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#ff4757" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px">
+    <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+  </svg>
+  <p>Screenshot blocked during exam.<br>This incident has been noted.</p>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="img-lightbox" id="imgLightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="Question Image">
+  <button class="img-lightbox-close" onclick="closeLightbox()">Close</button>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="screen" style="display:flex;">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px 20px;">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 2h6a1 1 0 0 1 0 2H9a1 1 0 0 1 0-2zm-2 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4zm1 8a1 1 0 0 1 1-1h6a1 1 0 0 1 0 2H9a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h4a1 1 0 0 1 0 2H9a1 1 0 0 1-1-1z"/>
+        </svg>
+      </div>
+      <h1>DUYARE PHYSICS EXAM WINDOW</h1>
+      <p>Practice COMPETITIVE EXAMS MODULES.</p>
+      <p style="margin-top:8px;">Any attempt of cheating or unfair means will lead to immediate disqualification.</p>
+      <p style="margin-top:8px;">Practice makes you perfect. Good luck!</p>
+    </div>
+    <!-- EXAM INFO BOX (shown after fetch) -->
+    <div class="exam-info-box hidden" id="examInfoBox">
+      <div class="exam-info-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="examInfoIcon">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="exam-info-content">
+        <div class="exam-info-title" id="examInfoTitle">Marking Scheme</div>
+        <div class="exam-info-rows" id="examInfoRows"></div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <div class="exam-name-label">Exam Name</div>
+      <div class="exam-name-value" id="loginExamName"><span class="name-spinner"></span></div>
+      <h2>Start Your Exam</h2>
+      <div class="login-fields">
+        <div class="field-group">
+          <label class="field-label">Your Full Name *</label>
+          <input type="text" id="nameInput" class="text-input" placeholder="e.g. Ankit Das" autocomplete="off">
+        </div>
+        <div class="field-group">
+          <label class="field-label">WhatsApp Number *</label>
+          <input type="tel" id="waInput" class="text-input" placeholder="e.g. 9876543210" autocomplete="off" inputmode="tel">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email Address *</label>
+          <input type="email" id="emailInput" class="text-input" placeholder="e.g. ankit@email.com" autocomplete="off" inputmode="email">
+        </div>
+        <button class="btn-primary" id="beginBtn" onclick="startExam()">Begin Exam</button>
+        <div class="error-msg" id="loginError"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="screen hidden">
+  <div class="loading-wrap">
+    <div class="spinner"></div>
+    <p id="loadingMsg">Loading exam questions...</p>
+  </div>
+</div>
+
+<!-- EXAM -->
+<div id="exam" class="screen hidden">
+  <div class="exam-header">
+    <div class="header-row">
+      <div class="exam-title" id="title">—</div>
+      <div class="timer-pill">
+        <div class="timer-dot" id="timerDot"></div>
+        <span id="time">00:00</span>
+      </div>
+      <!-- SUBMIT TOP RIGHT -->
+      <button class="btn-submit-top" onclick="confirmSubmit()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#060b14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Submit
+      </button>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="q-counter-bar">
+    <span class="q-counter-text">Question <span id="qCurrent">1</span> of <span id="qTotal">—</span></span>
+  </div>
+  <div class="dot-strip-wrap"><div class="dot-strip" id="dotStrip"></div></div>
+  <div class="question-viewport" id="questionViewport"></div>
+  <div class="bottom-bar">
+    <div class="nav-row">
+      <button class="btn-nav" id="btnPrev" onclick="goTo(currentQ - 1)">&#8592; Prev</button>
+      <button class="btn-nav next" id="btnNext" onclick="goTo(currentQ + 1)">Next &#8594;</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT / DASHBOARD -->
+<div id="result" class="screen hidden">
+  <div class="result-header">
+    <h2 style="display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--accent)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+      Result Dashboard
+    </h2>
+    <button class="btn-pdf" onclick="downloadPDF()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download PDF
+    </button>
+  </div>
+  <div class="result-body" id="resultBody"></div>
+</div>
+
+<!-- Confirm Submit Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-sheet">
+    <span class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="9" y1="13" x2="15" y2="13"/>
+        <line x1="9" y1="17" x2="13" y2="17"/>
+      </svg>
+    </span>
+    <h3>Submit Exam?</h3>
+    <p id="modalMsg">Are you sure you want to submit?</p>
+    <div class="modal-btns">
+      <button class="btn-confirm" onclick="submitExam()">Yes, Submit Now</button>
+      <button class="btn-cancel" onclick="closeModal('confirmModal')">Go Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exit Warning Modal -->
+<div class="modal-overlay" id="exitModal">
+  <div class="modal-sheet">
+    <span class="modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </span>
+    <h3>Leave Exam?</h3>
+    <p>If you leave now, your exam will be <span class="danger">automatically submitted</span> with all current answers.</p>
+    <div class="modal-btns">
+      <button class="btn-confirm danger-btn" onclick="forceSubmitAndExit()">Submit &amp; Exit</button>
+      <button class="btn-cancel" onclick="closeModal('exitModal')">Stay in Exam</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbzr79S1Fx7B8980dxHXTdI4JR2MGpPmGutc4J4KerVHHNauAZjbc-CE4eBJSyHYlBQ/exec";
+
+let examData, attemptId, timer, timeLeft;
+let currentQ = 0;
+let answers = [];
+let visitedQuestions = new Set();
+let examActive = false;
+let examStartTime = null;
+let screenshotBlurTimer = null;
+const LETTERS = ['A','B','C','D'];
+
+// ── FETCH EXAM NAME + INFO BOX ──
+(function() {
+  fetch(API + "?action=getQuestions")
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('loginExamName');
+      el.textContent = (data && data.examName) ? data.examName : '—';
+
+      if (!data || !data.marksPerQ) return;
+
+      const box      = document.getElementById('examInfoBox');
+      const rows     = document.getElementById('examInfoRows');
+      const title    = document.getElementById('examInfoTitle');
+      const iconSvg  = document.getElementById('examInfoIcon');
+      const marksPerQ   = data.marksPerQ || 1;
+      const hasNegative = data.hasNegative || false;
+      const negMarks    = +(marksPerQ / 4).toFixed(2);
+
+      let html = `
+        <div class="exam-info-row">
+          <span class="pill pill-green">+${marksPerQ}</span>
+          marks per correct answer
+        </div>`;
+
+      if (hasNegative) {
+        html += `
+          <div class="exam-info-row">
+            <span class="pill pill-red">−  ${negMarks}</span>
+            marks deducted per wrong answer
+          </div>
+          <div class="exam-info-row">
+            <span class="pill pill-cyan">0</span>
+            no penalty for skipped questions
+          </div>
+          <div class="exam-info-warn-note">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            This exam has negative marking. Answer carefully.
+          </div>`;
+        title.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Negative Marking Active';
+        box.classList.remove('no-negative');
+      } else {
+        html += `
+          <div class="exam-info-row">
+            <span class="pill pill-cyan">0</span>
+            no penalty for wrong or skipped answers
+          </div>`;
+        title.textContent = 'Marking Scheme';
+        box.classList.add('no-negative');
+        iconSvg.setAttribute('stroke', '#00e5ff');
+      }
+
+      rows.innerHTML = html;
+      box.classList.remove('hidden');
+    })
+    .catch(() => { document.getElementById('loginExamName').textContent = '—'; });
+})();
+
+// ── LIGHTBOX ──
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('imgLightbox').classList.add('open');
+}
+function closeLightbox() { document.getElementById('imgLightbox').classList.remove('open'); }
+
+// ── SCREENSHOT PROTECTION ──
+function showScreenshotBlock() {
+  if (!examActive) return;
+  document.body.classList.add('blurred');
+  document.getElementById('screenshotOverlay').classList.add('active');
+  clearTimeout(screenshotBlurTimer);
+  screenshotBlurTimer = setTimeout(() => {
+    document.body.classList.remove('blurred');
+    document.getElementById('screenshotOverlay').classList.remove('active');
+  }, 3000);
+}
+document.addEventListener('keyup', e => {
+  if ((e.key === 'PrintScreen' || e.keyCode === 44) && examActive) {
+    showScreenshotBlock();
+    try { navigator.clipboard.writeText(''); } catch(e) {}
+  }
+});
+document.addEventListener('visibilitychange', () => { if (document.hidden && examActive) showScreenshotBlock(); });
+document.addEventListener('copy', e => { if (examActive) e.preventDefault(); });
+document.addEventListener('cut', e => { if (examActive) e.preventDefault(); });
+document.addEventListener('contextmenu', e => { if (examActive) e.preventDefault(); });
+document.addEventListener('keydown', e => {
+  if (!examActive) return;
+  if ((e.ctrlKey && ['c','a','x','u','s','p'].includes(e.key.toLowerCase())) || e.key === 'F12' || e.key === 'PrintScreen') {
+    e.preventDefault(); showScreenshotBlock();
+  }
+});
+
+// ── UTILS ──
+function showScreen(id) {
+  ['login','loading','exam','result'].forEach(s => document.getElementById(s).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+function showError(msg) { const el = document.getElementById('loginError'); el.textContent = msg; el.style.display = 'block'; }
+function hideError() { document.getElementById('loginError').style.display = 'none'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ── EXIT GUARD ──
+function setupExitGuard() {
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  window.history.pushState(null, '', window.location.href);
+  window.addEventListener('popstate', handlePopState);
+}
+function teardownExitGuard() {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+  window.removeEventListener('popstate', handlePopState);
+}
+function handleBeforeUnload(e) {
+  if (!examActive) return;
+  e.preventDefault(); e.returnValue = '';
+  setTimeout(() => { if (examActive) showExitModal(); }, 200);
+}
+function handlePopState() {
+  if (!examActive) return;
+  window.history.pushState(null, '', window.location.href);
+  showExitModal();
+}
+function showExitModal() { document.getElementById('exitModal').classList.add('open'); }
+function forceSubmitAndExit() { closeModal('exitModal'); doSubmit(); }
+
+// ── VALIDATE ──
+function validateEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function validateWA(w) { return /^[6-9]\d{9}$/.test(w.replace(/\s/g,'')); }
+
+// ── START EXAM ──
+function startExam() {
+  const name  = document.getElementById("nameInput").value.trim();
+  const wa    = document.getElementById("waInput").value.trim().replace(/\s/g,'');
+  const email = document.getElementById("emailInput").value.trim();
+  hideError();
+
+  if (!name)                      { showError("Please enter your full name."); return; }
+  if (!wa || !validateWA(wa))     { showError("Enter a valid 10-digit WhatsApp number."); return; }
+  if (!email||!validateEmail(email)){ showError("Enter a valid email address."); return; }
+
+  const btn = document.getElementById("beginBtn");
+  btn.disabled = true; btn.textContent = "Loading...";
+  showScreen('loading');
+  document.getElementById("loadingMsg").textContent = "Fetching exam questions...";
+
+  fetch(API + "?action=getQuestions")
+    .then(res => { if (!res.ok) throw new Error("Server error " + res.status); return res.json(); })
+    .then(data => {
+      if (data.error) throw new Error(data.error);
+      if (!data.questions || data.questions.length === 0) throw new Error("No questions found.");
+
+      examData = data;
+      answers = new Array(data.questions.length).fill('');
+      visitedQuestions = new Set();
+      currentQ = 0;
+      examStartTime = Date.now();
+
+      document.getElementById("title").textContent = data.examName;
+      document.getElementById("qTotal").textContent = data.questions.length;
+
+      buildDotStrip(data.questions.length);
+      visitedQuestions.add(0);
+      renderQuestion(0);
+      startTimer(data.time);
+
+      fetch(API, {
+        method: "POST",
+        body: JSON.stringify({ action: "startExam", name, whatsapp: wa, email, examName: data.examName })
+      }).then(r => r.json()).then(r => { attemptId = r.id; }).catch(() => {});
+
+      examActive = true;
+      setupExitGuard();
+      showScreen('exam');
+    })
+    .catch(err => {
+      btn.disabled = false; btn.textContent = "Begin Exam";
+      showScreen('login');
+      showError("Could not load exam: " + err.message);
+    });
+}
+
+// ── TIMER ──
+function startTimer(minutes) {
+  timeLeft = minutes * 60;
+  updateTimerDisplay();
+  timer = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timer); doSubmit(true); }
+  }, 1000);
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timeLeft/60), s = timeLeft%60;
+  const el = document.getElementById('time'), dot = document.getElementById('timerDot');
+  el.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if (timeLeft<=60) { el.className='danger'; dot.className='timer-dot danger'; }
+  else if (timeLeft<=300) { el.className='warn'; dot.className='timer-dot warn'; }
+  else { el.className=''; dot.className='timer-dot'; }
+}
+
+// ── DOT STRIP ──
+function buildDotStrip(count) {
+  const strip = document.getElementById('dotStrip');
+  strip.innerHTML = '';
+  for (let i=0;i<count;i++) {
+    const d = document.createElement('div');
+    d.className='dot'; d.textContent=i+1;
+    d.onclick=()=>goTo(i);
+    strip.appendChild(d);
+  }
+}
+function updateDots() {
+  const dots = document.querySelectorAll('.dot');
+  dots.forEach((d,i) => {
+    d.className='dot';
+    if (answers[i]) d.classList.add('answered');
+    else if (visitedQuestions.has(i)) d.classList.add('visited');
+    if (i===currentQ) d.classList.add('current');
+  });
+  dots[currentQ]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+// ── RENDER QUESTION ──
+function renderQuestion(idx) {
+  currentQ = idx;
+  visitedQuestions.add(idx);
+  const q = examData.questions[idx];
+  const total = examData.questions.length;
+
+  document.getElementById('qCurrent').textContent = idx+1;
+  const answered = answers.filter(a=>a!=='').length;
+  document.getElementById('progressBar').style.width = ((answered/total)*100)+'%';
+  document.getElementById('btnPrev').disabled = idx===0;
+  document.getElementById('btnNext').disabled = idx===total-1;
+  updateDots();
+
+  const hasAnswer = answers[idx]!=='';
+  let imageHtml = '';
+  if (q.imageLink) {
+    imageHtml = `<div class="q-image-wrap">
+      <img class="q-image-thumb" src="${q.imageLink}" alt="Q image"
+        onclick="openLightbox('${q.imageLink}')"
+        onerror="this.parentElement.style.display='none'">
+      <div class="img-hint">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Tap to enlarge
+      </div>
+    </div>`;
+  }
+
+  const optionsHtml = q.options.map((opt,oi)=>{
+    const letter=LETTERS[oi], sel=answers[idx]===letter;
+    return `<div class="option-row-single ${sel?'selected':''}" onclick="selectOption(${idx},'${letter}')">
+      <div class="option-letter-single">${letter}</div>
+      <div class="option-text-single">${opt}</div>
+    </div>`;
+  }).join('');
+
+  const badgeHtml = hasAnswer
+    ? `<div class="answer-badge selected">✓ Selected: ${answers[idx]}</div>
+       <button class="btn-clear" onclick="clearOption(${idx})">
+         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+         Clear
+       </button>`
+    : `<div class="answer-badge none">Not answered yet</div>`;
+
+  document.getElementById('questionViewport').innerHTML = `
+    <div class="q-card-single ${hasAnswer?'answered':''}">
+      <div class="q-top-single">
+        <div class="q-num">${idx+1}</div>
+        <div class="q-text-single">${q.question}</div>
+      </div>
+      ${imageHtml}
+      <div class="q-options-single">${optionsHtml}</div>
+      <div class="answer-badge-row">${badgeHtml}</div>
+    </div>`;
+}
+
+function selectOption(qIdx, letter) { answers[qIdx]=letter; renderQuestion(qIdx); }
+function clearOption(qIdx) { answers[qIdx]=''; renderQuestion(qIdx); }
+function goTo(idx) { if (idx>=0 && idx<examData.questions.length) renderQuestion(idx); }
+
+// ── CONFIRM SUBMIT ──
+function confirmSubmit() {
+  const total=examData.questions.length, answered=answers.filter(a=>a!=='').length, skipped=total-answered;
+  const msg=document.getElementById('modalMsg');
+  if (skipped>0) {
+    msg.innerHTML=`You have answered <span>${answered} of ${total}</span> questions. <span class="danger">${skipped} unanswered</span> will be marked N/A.`;
+  } else {
+    msg.innerHTML=`You have answered all <span>${total} questions</span>. Ready to submit?`;
+  }
+  document.getElementById('confirmModal').classList.add('open');
+}
+function submitExam() { closeModal('confirmModal'); doSubmit(); }
+
+// ── DO SUBMIT ──
+function doSubmit(timedOut=false) {
+  if (!examActive) return;
+  examActive=false; clearInterval(timer); teardownExitGuard();
+
+  const name=document.getElementById("nameInput").value.trim();
+  const total=examData.questions.length;
+  const answered=answers.filter(a=>a!=='').length;
+  const timeTaken=examStartTime?Math.floor((Date.now()-examStartTime)/1000):0;
+
+  const finalAnswers=answers.map((a,i)=>{
+    if (a!=='') return a;
+    return visitedQuestions.has(i)?'N/A':'Not Visited';
+  });
+
+  const correctAnswers=examData.questions.map(q=>q.correctAns||'');
+  const marksPerQ=examData.marksPerQ||1;
+  const hasNegative=examData.hasNegative||false;
+
+  // Client-side score calc
+  let correct=0, wrong=0, skipped=0;
+  for (let i=0;i<finalAnswers.length;i++) {
+    const ua=finalAnswers[i], ca=correctAnswers[i];
+    if (!ua||ua==='N/A'||ua==='Not Visited') skipped++;
+    else if (ua.toUpperCase()===ca.toUpperCase()) correct++;
+    else wrong++;
+  }
+  const rawScore=correct*marksPerQ-(hasNegative?wrong*(marksPerQ/4):0);
+  const score=Math.max(0,rawScore);
+  const totalMarks=total*marksPerQ;
+
+  showScreen('loading');
+  document.getElementById('loadingMsg').textContent=timedOut?"Time's up! Submitting...":"Submitting your answers...";
+
+  fetch(API, {
+    method:"POST",
+    body: JSON.stringify({ action:"submit", id:attemptId||"unknown", answers:finalAnswers, correctAnswers, marksPerQ, hasNegative })
+  })
+  .then(r=>r.json())
+  .then(r=>{
+    const s=r.score!==undefined?r.score:score;
+    buildResultDashboard(name, s, totalMarks, r.correct??correct, r.wrong??wrong, r.skipped??skipped, total, timeTaken, finalAnswers, correctAnswers);
+  })
+  .catch(()=>{
+    buildResultDashboard(name, score, totalMarks, correct, wrong, skipped, total, timeTaken, finalAnswers, correctAnswers);
+  });
+}
+
+// ── BUILD RESULT DASHBOARD ──
+function buildResultDashboard(name, score, totalMarks, correct, wrong, skipped, total, timeTaken, finalAnswers, correctAnswers) {
+  const mins=Math.floor(timeTaken/60), secs=timeTaken%60;
+  const pct=totalMarks>0?Math.round((score/totalMarks)*100):0;
+  const marksPerQ=examData.marksPerQ||1;
+  const hasNegative=examData.hasNegative||false;
+
+  const markingNote=hasNegative
+    ? `+${marksPerQ} correct, −${(marksPerQ/4).toFixed(2)} wrong (negative marking on)`
+    : `+${marksPerQ} per correct answer (no negative marking)`;
+
+  let html=`
+    <div class="score-card">
+      <div class="score-name">${name}'s Result — ${examData.examName}</div>
+      <div class="score-big">${score % 1===0 ? score : score.toFixed(2)}</div>
+      <div class="score-denom">/ ${totalMarks}</div>
+      <div class="score-pct">${pct}% correct</div>
+      <div class="score-marking-note">${markingNote}</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box"><span class="val green">${correct}</span><span class="lbl">Correct</span></div>
+      <div class="stat-box"><span class="val red">${wrong}</span><span class="lbl">Wrong</span></div>
+      <div class="stat-box"><span class="val warn">${skipped}</span><span class="lbl">Skipped</span></div>
+      <div class="stat-box"><span class="val">${total}</span><span class="lbl">Total Qs</span></div>
+      <div class="stat-box"><span class="val">${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}</span><span class="lbl">Time Taken</span></div>
+      <div class="stat-box"><span class="val">${pct}%</span><span class="lbl">Score %</span></div>
+    </div>
+
+    <div class="dash-section-title">Question-wise Review</div>
+  `;
+
+  examData.questions.forEach((q, i) => {
+    const ua = finalAnswers[i] || '';
+    const ca = correctAnswers[i] || '';
+    const isSkip = !ua || ua==='N/A' || ua==='Not Visited';
+    const isCorrect = !isSkip && ua.toUpperCase()===ca.toUpperCase();
+    const isWrong = !isSkip && !isCorrect;
+
+    const cardClass = isCorrect ? 'correct-card' : isWrong ? 'wrong-card' : 'skip-card';
+    const verdictClass = isCorrect ? 'verdict-correct' : isWrong ? 'verdict-wrong' : (ua==='Not Visited'?'verdict-unvisited':'verdict-skip');
+    const verdictSvg = isCorrect
+      ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      : isWrong
+      ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    const verdictText = isCorrect
+      ? `${verdictSvg} Correct`
+      : isWrong
+      ? `${verdictSvg} Wrong &nbsp;|&nbsp; Your answer: ${ua} &nbsp;|&nbsp; Correct: ${ca}`
+      : ua==='Not Visited'
+      ? `${verdictSvg} Not Visited`
+      : `${verdictSvg} Skipped`;
+
+    let imgHtml='';
+    if (q.imageLink) {
+      imgHtml=`<img class="review-img" src="${q.imageLink}" alt="Q${i+1} image" onclick="openLightbox('${q.imageLink}')" onerror="this.style.display='none'">`;
+    }
+
+    const optionsHtml = q.options.map((opt, oi) => {
+      const letter=LETTERS[oi];
+      const isCA = letter.toUpperCase()===ca.toUpperCase();
+      const isUA = letter.toUpperCase()===ua.toUpperCase();
+      let cls='review-option';
+      if (isCA) cls+=' is-correct';
+      else if (isUA && isWrong) cls+=' is-user-wrong';
+      return `<div class="${cls}"><div class="r-letter">${letter}</div>${opt}</div>`;
+    }).join('');
+
+    html+=`
+      <div class="review-card ${cardClass}">
+        <div class="review-q-row">
+          <div class="review-q-num">${i+1}</div>
+          <div class="review-q-text">${q.question}</div>
+        </div>
+        ${imgHtml}
+        <div class="review-options">${optionsHtml}</div>
+        <div style="margin-top:10px;"><span class="review-verdict ${verdictClass}" style="display:inline-flex;align-items:center;gap:5px;">${verdictText}</span></div>
+      </div>`;
+  });
+
+  document.getElementById('resultBody').innerHTML = html;
+  showScreen('result');
+}
+
+// ── PDF DOWNLOAD ──
+function downloadPDF() {
+  window.print();
+}
+</script>
+</body>
+</html>
