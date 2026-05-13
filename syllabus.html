@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duyare Physics — Syllabus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --b50:  #E6F1FB;
+  --b100: #B5D4F4;
+  --b200: #85B7EB;
+  --b400: #378ADD;
+  --b600: #185FA5;
+  --b800: #0C447C;
+  --b900: #042C53;
+  --bg:   #EAF2FB;
+  --card: #ffffff;
+  --text: #0f2236;
+  --muted: #4a6580;
+  --border: rgba(55,138,221,0.15);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(55,138,221,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(55,138,221,0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--b900);
+  padding: 3rem 1.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.halo {
+  position: absolute;
+  top: -80px; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 320px;
+  background: radial-gradient(ellipse, rgba(55,138,221,0.28) 0%, transparent 68%);
+  pointer-events: none;
+}
+.dots {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(181,212,244,0.1) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.header-inner { position: relative; z-index: 2; }
+
+.portal-label {
+  display: inline-block;
+  background: rgba(55,138,221,0.2);
+  border: 1px solid rgba(133,183,235,0.3);
+  color: var(--b200);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+}
+
+header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(1.9rem, 6vw, 3rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+header h1 span { color: var(--b200); }
+
+header h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(0.82rem, 2.5vw, 1rem);
+  font-weight: 300;
+  color: var(--b100);
+  margin-top: 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+/* Return to Exam Portal button */
+.return-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1.4rem;
+  padding: 10px 22px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(181,212,244,0.35);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.18s, border-color 0.18s;
+}
+.return-btn:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(181,212,244,0.6);
+}
+.return-btn svg { flex-shrink: 0; }
+
+/* ── MAIN ── */
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1rem 5rem;
+  position: relative; z-index: 1;
+}
+
+/* SOURCE BADGE */
+.source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.live-dot {
+  width: 7px; height: 7px;
+  background: #22c55e;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: blink 2s ease infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.source-badge strong { color: var(--b800); font-weight: 600; }
+
+/* ── CONTROLS ── */
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.search-wrap {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+.search-wrap svg {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--b400); pointer-events: none;
+}
+input[type="search"] {
+  width: 100%;
+  padding: 11px 14px 11px 38px;
+  border: 1.5px solid var(--b100);
+  border-radius: 10px;
+  background: var(--card);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+input[type="search"]:focus { border-color: var(--b400); }
+input[type="search"]::placeholder { color: var(--muted); opacity: 0.65; }
+
+.controls-right {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.86rem; font-weight: 500;
+  cursor: pointer; border: none;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--b600); color: #fff; }
+.btn-primary:hover { background: var(--b800); }
+.btn-primary:active { transform: scale(0.97); }
+
+.view-toggle {
+  display: flex;
+  background: var(--card);
+  border: 1.5px solid var(--b100);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.view-btn {
+  padding: 0 13px;
+  background: transparent; border: none;
+  cursor: pointer; color: var(--muted);
+  display: flex; align-items: center;
+  transition: all 0.15s;
+  min-height: 42px;
+}
+.view-btn.active { background: var(--b600); color: #fff; }
+.view-btn:hover:not(.active) { background: var(--b50); color: var(--b600); }
+
+/* ── STATS ── */
+.stats {
+  display: flex; gap: 8px;
+  margin-bottom: 1.25rem; flex-wrap: wrap;
+}
+.stat-pill {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 5px;
+}
+.stat-pill strong { color: var(--b800); }
+
+/* ── TABLE ── */
+.table-wrap {
+  background: var(--card);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: fadeUp 0.32s ease both;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 320px;
+}
+thead tr { background: var(--b900); }
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--b100);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--b50); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #f0f7ff; }
+tbody tr.topic-row { background: #EAF2FB; }
+tbody tr.topic-row:hover { background: #daeaf9; }
+td { padding: 10px 16px; font-size: 0.85rem; vertical-align: middle; }
+
+.topic-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--b800); color: #fff;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 0.78rem; font-weight: 600;
+  white-space: nowrap;
+}
+.sub-name {
+  color: var(--muted);
+  display: flex; align-items: center; gap: 7px;
+}
+.sub-arrow { color: var(--b200); font-size: 0.72rem; flex-shrink: 0; }
+.sub-num {
+  display: inline-block;
+  background: var(--b50); color: var(--b600);
+  border-radius: 5px; padding: 1px 7px;
+  font-size: 0.73rem; font-weight: 500;
+  min-width: 24px; text-align: center;
+  white-space: nowrap;
+}
+
+/* ── CARDS ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 14px;
+  animation: fadeUp 0.32s ease both;
+}
+.topic-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.topic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(24,95,165,0.1);
+}
+.card-head {
+  background: var(--b800);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.card-icon {
+  width: 30px; height: 30px;
+  background: rgba(255,255,255,0.14);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 13px; flex-shrink: 0;
+}
+.card-head h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.9rem; font-weight: 700; color: #fff;
+  line-height: 1.3;
+}
+.card-head span {
+  font-size: 0.72rem; color: var(--b200);
+  display: block; margin-top: 1px;
+}
+.card-body { padding: 12px 14px; }
+.sub-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--b50); color: var(--b800);
+  border: 1px solid var(--b100);
+  border-radius: 6px; padding: 4px 9px;
+  font-size: 0.76rem; margin: 3px;
+}
+
+/* ── STATES ── */
+.state-box {
+  text-align: center; padding: 3.5rem 1.5rem;
+  color: var(--muted);
+}
+.state-box p { font-size: 0.9rem; line-height: 1.6; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--b100);
+  border-top-color: var(--b600);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.73rem;
+  color: var(--muted);
+  position: relative; z-index: 1;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 480px) {
+  header { padding: 2.2rem 1rem 2rem; }
+  main { padding: 1.5rem 0.85rem 4rem; }
+
+  .controls { flex-direction: column; }
+  .controls-right { width: 100%; }
+  .btn { flex: 1; justify-content: center; }
+  .view-toggle { flex: 1; }
+  .view-btn { flex: 1; justify-content: center; }
+
+  .stats { gap: 6px; }
+  .stat-pill { font-size: 0.74rem; padding: 4px 10px; }
+
+  thead th:nth-child(3), td:nth-child(3) { display: none; }
+
+  .card-grid { grid-template-columns: 1fr; gap: 10px; }
+  .topic-badge { font-size: 0.74rem; padding: 3px 10px; }
+}
+
+@media (max-width: 360px) {
+  header h1 { font-size: 1.7rem; }
+  .return-btn { font-size: 0.78rem; padding: 9px 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="halo"></div>
+  <div class="dots"></div>
+  <div class="header-inner">
+    <div class="portal-label">Exam Resource Portal</div>
+    <h1>Duyare <span>Physics</span></h1>
+    <h2>Syllabus &middot; Topics &middot; Subtopics</h2>
+    <a href="#" class="return-btn" onclick="history.back(); return false;">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Return to Exam Portal
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <div class="source-badge">
+    <span class="live-dot"></span>
+    Live data from the <strong>Duyare Physics Syllabus Portal</strong> 
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" id="searchInput" placeholder="Search topics or subtopics...">
+    </div>
+    <div class="controls-right">
+      <button class="btn btn-primary" onclick="fetchData()">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path d="M1 4v6h6M23 20v-6h-6"/>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+        </svg>
+        Refresh
+      </button>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnTable" onclick="setView('table')" title="Table view" aria-label="Table view">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18M3 15h18M9 3v18"/>
+          </svg>
+        </button>
+        <button class="view-btn" id="btnCard" onclick="setView('card')" title="Card view" aria-label="Card view">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats" id="statsBar" style="display:none;">
+    <div class="stat-pill">Topics: <strong id="statTopics">0</strong></div>
+    <div class="stat-pill">Subtopics: <strong id="statSubs">0</strong></div>
+    <div class="stat-pill" id="statTime" style="display:none;">
+      Updated: <strong id="fetchTime">—</strong>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <p>Loading syllabus data from portal...</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Duyare Physics &nbsp;&middot;&nbsp; Data sourced from the <strong>Duyare Physics Syllabus Portal</strong> 
+</footer>
+
+<script>
+  const API = 'https://script.google.com/macros/s/AKfycbzdFoF26DhmheNDwWnJiK_6tiQaoeRA8ammGHD2MUlrxqu8DqafEvJAeHZCo5ncIyc/exec';
+  let allData = [];
+  let currentView = 'table';
+
+  async function fetchData() {
+    showLoading();
+    try {
+      const res = await fetch(API);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const raw = await res.json();
+      allData = Array.isArray(raw) ? raw : JSON.parse(raw);
+      updateStats();
+      render(allData);
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  function updateStats() {
+    const totalSubs = allData.reduce((a, t) => a + (t.subs ? t.subs.length : 0), 0);
+    document.getElementById('statTopics').textContent = allData.length;
+    document.getElementById('statSubs').textContent = totalSubs;
+    const now = new Date();
+    document.getElementById('fetchTime').textContent =
+      now.getHours().toString().padStart(2, '0') + ':' +
+      now.getMinutes().toString().padStart(2, '0');
+    document.getElementById('statsBar').style.display = 'flex';
+    document.getElementById('statTime').style.display = 'flex';
+  }
+
+  function render(data) {
+    if (!data || !data.length) {
+      document.getElementById('content').innerHTML =
+        '<div class="state-box"><p>No data found in the portal.</p></div>';
+      return;
+    }
+    currentView === 'table' ? renderTable(data) : renderCards(data);
+  }
+
+  function renderTable(data) {
+    let rows = '';
+    data.forEach(t => {
+      const subs = t.subs || [];
+      rows += `<tr class="topic-row">
+        <td><span class="topic-badge">&#128204; ${esc(t.topic)}</span></td>
+        <td style="color:var(--muted);font-size:0.78rem;">${subs.length} subtopic${subs.length !== 1 ? 's' : ''}</td>
+        <td></td>
+      </tr>`;
+      subs.forEach((s, i) => {
+        rows += `<tr>
+          <td></td>
+          <td><span class="sub-name"><span class="sub-arrow">&#8627;</span>${esc(s)}</span></td>
+          <td><span class="sub-num">${i + 1}</span></td>
+        </tr>`;
+      });
+    });
+    document.getElementById('content').innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Main Topic</th>
+              <th>Subtopic</th>
+              <th style="width:48px;">#</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderCards(data) {
+    const cards = data.map(t => {
+      const subs = t.subs || [];
+      const chips = subs.map(s => `<span class="sub-chip">&#9658; ${esc(s)}</span>`).join('');
+      return `
+        <div class="topic-card">
+          <div class="card-head">
+            <div class="card-icon">&#128204;</div>
+            <div>
+              <h3>${esc(t.topic)}</h3>
+              <span>${subs.length} subtopic${subs.length !== 1 ? 's' : ''}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            ${chips || '<span style="color:var(--muted);font-size:0.78rem;">No subtopics listed.</span>'}
+          </div>
+        </div>`;
+    }).join('');
+    document.getElementById('content').innerHTML = `<div class="card-grid">${cards}</div>`;
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('btnTable').classList.toggle('active', v === 'table');
+    document.getElementById('btnCard').classList.toggle('active', v === 'card');
+    if (allData.length) render(allData);
+  }
+
+  document.getElementById('searchInput').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    if (!q) { render(allData); return; }
+    const filtered = allData
+      .map(t => ({
+        topic: t.topic,
+        subs: (t.subs || []).filter(s => s.toLowerCase().includes(q))
+      }))
+      .filter(t => t.topic.toLowerCase().includes(q) || t.subs.length);
+    render(filtered);
+  });
+
+  function showLoading() {
+    document.getElementById('content').innerHTML =
+      '<div class="state-box"><div class="spinner"></div><p>Fetching data from portal...</p></div>';
+  }
+
+  function showError(msg) {
+    document.getElementById('content').innerHTML =
+      `<div class="state-box">
+        <p><strong>Failed to load data</strong><br>
+        <span style="font-size:0.8rem;color:var(--b400);">${esc(msg)}</span><br><br>
+        Make sure the Apps Script is deployed as a web app with access set to <em>Anyone</em>.</p>
+      </div>`;
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;');
+  }
+
+  fetchData();
+</script>
+</body>
+</html>
