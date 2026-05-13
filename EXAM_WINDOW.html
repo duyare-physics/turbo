@@ -2,8 +2,173 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>DUYARE PHYSICS EXAM WINDOW</title>
+<title>MCQ Exam</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<!-- MathJax for equation rendering (screen + print) -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['\\(','\\)']],
+      displayMath: [['\\[','\\]']],
+      packages: {'[+]': ['ams']}
+    },
+    options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+    startup: { typeset: false }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+<script>
+// ── PLAIN TEXT → LaTeX MATH CONVERTER ──
+// Converts plain text math like x^2 + 1/x or (a+b)/(c+d) into rendered LaTeX
+function toMath(text) {
+  if (!text) return text;
+
+  // Already has LaTeX delimiters — pass through
+  if (/\\\(|\\\[|\$/.test(text)) return text;
+
+  // Detect if the text contains math-like patterns
+  // Patterns: exponents (x^2, a^n), fractions (a/b, (a+b)/(c+d)), roots, trig, etc.
+  const mathPatterns = [
+    /\^/,                          // exponents: x^2
+    /[a-zA-Z0-9\)]\s*\/\s*[a-zA-Z0-9\(]/,  // fractions: a/b, (x)/y
+    /\b(sin|cos|tan|log|ln|sqrt|lim|sum|int|alpha|beta|theta|pi|omega|Delta|Sigma|infty)\b/i,
+    /\b\d+\/\d+\b/,               // simple fractions: 3/4
+    /[a-z]\s*[+\-]\s*\d+\s*\/\s*[a-z]/i,  // x + 1/x style
+  ];
+
+  const hasMath = mathPatterns.some(p => p.test(text));
+  if (!hasMath) return text;
+
+  // Split text into segments: math expressions vs plain prose
+  // We'll try to find math-heavy segments (whole text or inline)
+  // Strategy: convert the whole text treating it as mixed math+prose
+
+  // Tokenise: split on likely sentence boundaries (. followed by space+uppercase, or newline)
+  // Then process each token
+  const converted = convertMathInText(text);
+  return converted;
+}
+
+function convertMathInText(text) {
+  // Split into parts: we look for math-like tokens within the text
+  // and wrap them in \(...\) for MathJax inline math
+
+  // Step 1: protect HTML tags
+  // Step 2: find math expressions and wrap them
+
+  // We process expression by expression
+  // Regex to find math expressions (greedy)
+  // A math expression is: a sequence that contains ^, /, trig words, etc.
+  // We avoid wrapping single words that are just variable names in plain English
+
+  const parts = [];
+  let remaining = text;
+
+  // Pattern to detect full math expression token:
+  // Matches things like: x^2 + 1/x^2, (a+b)/(c+d), sin(x)/cos(x), sqrt(x), 3/4, etc.
+  const mathExprRegex = /(?:\([^)]*\)|[a-zA-Z0-9_])\s*(?:[+\-*]?\s*(?:\^|\/))\s*(?:\([^)]*\)|[a-zA-Z0-9_])|(?:sin|cos|tan|log|ln|sqrt)\s*\([^)]*\)|\b\d+\/\d+\b/gi;
+
+  // Better approach: convert the whole text segment by segment
+  // Find regions that look like math and wrap them
+  let result = text;
+
+  // Process exponents: word^word or word^{...}
+  // e.g. x^2 → x^{2}, a^n → a^{n}
+  // Then wrap entire expression
+
+  // We'll do a full-text replacement approach:
+  // Find stretches of text that are math-like and wrap in \(…\)
+
+  result = wrapMathExpressions(result);
+  return result;
+}
+
+function wrapMathExpressions(text) {
+  // Strategy: identify math "islands" — contiguous token sequences with operators, 
+  // fractions, exponents — and wrap them in \(…\)
+  // We split on double spaces, colons followed by space (likely text intro), etc.
+
+  // Find and process math segments inline
+  // Regex that matches a math-like expression (multi-token)
+  const mathIslandRegex = /(?:(?:[a-zA-Z0-9_]+|\([^)]*\))\s*[\^\/\+\-\*]\s*)*(?:[a-zA-Z0-9_]+|\([^)]*\))(?:\s*[\^\/\+\-\*]\s*(?:[a-zA-Z0-9_]+|\([^)]*\)))+/g;
+
+  // Collect matches and their positions
+  let out = '';
+  let lastIdx = 0;
+  let match;
+  const re = new RegExp(mathIslandRegex.source, 'g');
+
+  while ((match = re.exec(text)) !== null) {
+    const expr = match[0].trim();
+    // Only wrap if it has math operators
+    if (/[\^\/]/.test(expr) || /\b(sin|cos|tan|log|ln|sqrt)\b/i.test(expr)) {
+      out += text.slice(lastIdx, match.index);
+      out += '\\(' + plainToLatex(expr) + '\\)';
+      lastIdx = match.index + match[0].length;
+    }
+  }
+  out += text.slice(lastIdx);
+  return out;
+}
+
+function plainToLatex(expr) {
+  let e = expr.trim();
+
+  // sin/cos/tan/log/ln → \sin etc.
+  e = e.replace(/\b(sin|cos|tan|log|ln|sqrt)\b/gi, (m) => {
+    const map = {sin:'\\sin',cos:'\\cos',tan:'\\tan',log:'\\log',ln:'\\ln',sqrt:'\\sqrt'};
+    return map[m.toLowerCase()] || m;
+  });
+
+  // Named constants
+  e = e.replace(/\bpi\b/g, '\\pi');
+  e = e.replace(/\btheta\b/g, '\\theta');
+  e = e.replace(/\balpha\b/g, '\\alpha');
+  e = e.replace(/\bbeta\b/g, '\\beta');
+  e = e.replace(/\binfty\b/g, '\\infty');
+  e = e.replace(/\binfinity\b/gi, '\\infty');
+
+  // Fractions: (a)/(b) or a/b — handle (a+b)/(c+d) first
+  // Multi-char numerator/denominator with parens
+  e = e.replace(/\(([^)]+)\)\s*\/\s*\(([^)]+)\)/g, (_, num, den) => {
+    return `\\frac{${plainToLatex(num)}}{${plainToLatex(den)}}`;
+  });
+  // (a)/b
+  e = e.replace(/\(([^)]+)\)\s*\/\s*([a-zA-Z0-9_]+)/g, (_, num, den) => {
+    return `\\frac{${plainToLatex(num)}}{${den}}`;
+  });
+  // a/(b)
+  e = e.replace(/([a-zA-Z0-9_]+)\s*\/\s*\(([^)]+)\)/g, (_, num, den) => {
+    return `\\frac{${num}}{${plainToLatex(den)}}`;
+  });
+  // Simple a/b (single token / single token)
+  e = e.replace(/([a-zA-Z0-9_]+)\s*\/\s*([a-zA-Z0-9_]+)/g, (_, num, den) => {
+    return `\\frac{${num}}{${den}}`;
+  });
+
+  // Exponents: x^2 → x^{2}, x^10 → x^{10}, x^n → x^{n}
+  e = e.replace(/([a-zA-Z0-9_})])\^([a-zA-Z0-9_]+)/g, (_, base, exp) => {
+    return `${base}^{${exp}}`;
+  });
+
+  // sqrt(x) → \sqrt{x}
+  e = e.replace(/\\sqrt\s*\(([^)]+)\)/g, (_, inner) => `\\sqrt{${plainToLatex(inner)}}`);
+  e = e.replace(/\\sqrt\s+([a-zA-Z0-9_]+)/g, (_, inner) => `\\sqrt{${inner}}`);
+
+  // Multiplication dot: 2*x → 2x (implicit), or keep as \cdot
+  e = e.replace(/([a-zA-Z0-9_])\s*\*\s*([a-zA-Z0-9_])/g, '$1 \\cdot $2');
+
+  return e;
+}
+
+// Main entry: convert text and typeset
+function mathify(text) {
+  if (!text) return text;
+  // If already has \( or \[ delimiters, just return as-is
+  if (/\\\(|\\\[/.test(text)) return text;
+  return toMath(text);
+}
+</script>
 <style>
   :root {
     --bg: #060b14;
@@ -95,6 +260,38 @@
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
   .brand p { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  /* ── SYLLABUS BUTTON (above exam info box) ── */
+  .syllabus-btn-wrap {
+    width: 100%; max-width: 400px;
+    margin-bottom: 10px;
+    display: flex; justify-content: center;
+  }
+  .btn-syllabus {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 100px;
+    background: rgba(124,58,237,0.15);
+    border: 1.5px solid rgba(124,58,237,0.45);
+    color: #c4b5fd;
+    font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+    position: relative; overflow: hidden;
+  }
+  .btn-syllabus:hover {
+    background: rgba(124,58,237,0.28);
+    border-color: rgba(124,58,237,0.7);
+    color: #ede9fe;
+  }
+  .btn-syllabus:active { transform: scale(0.97); }
+  .btn-syllabus svg { flex-shrink: 0; }
+  .btn-syllabus::after {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0;
+    width: 30px;
+    background: linear-gradient(90deg, transparent, rgba(196,181,253,0.08));
+    pointer-events: none;
+  }
 
   /* ── EXAM INFO BOX ── */
   .exam-info-box {
@@ -200,7 +397,6 @@
   #time.warn { color: var(--warn); }
   #time.danger { color: var(--red); }
 
-  /* Submit top-right button */
   .btn-submit-top {
     flex-shrink: 0;
     padding: 8px 14px;
@@ -408,10 +604,8 @@
     background: var(--border); display: flex; align-items: center; justify-content: center;
     font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: var(--muted);
   }
-  /* Correct answer highlight */
   .review-option.is-correct { border-color: rgba(0,255,135,0.4); background: rgba(0,255,135,0.08); color: var(--text); }
   .review-option.is-correct .r-letter { background: var(--green); color: #060b14; }
-  /* User wrong answer highlight */
   .review-option.is-user-wrong { border-color: rgba(255,71,87,0.4); background: rgba(255,71,87,0.07); color: var(--text); }
   .review-option.is-user-wrong .r-letter { background: var(--red); color: #fff; }
 
@@ -428,46 +622,185 @@
   /* ── PRINT / PDF STYLES ── */
   @media print {
     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    body { background: #fff !important; color: #111 !important; }
+
+    /* Reset body for print */
+    body {
+      background: #fff !important;
+      color: #111 !important;
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      font-size: 13px !important;
+    }
     body::before, body::after { display: none !important; }
-    .screenshot-overlay, .img-lightbox, .modal-overlay, #login, #loading, #exam { display: none !important; }
-    #result { display: block !important; min-height: auto !important; }
-    .result-header { position: static !important; background: #fff !important; border-color: #ddd !important; }
-    .result-header h2 { color: #111 !important; }
+
+    /* Hide everything except result */
+    .screenshot-overlay, .img-lightbox, .modal-overlay,
+    #login, #loading, #exam { display: none !important; }
+
+    #result {
+      display: block !important;
+      min-height: auto !important;
+    }
+
+    /* Sticky header becomes static */
+    .result-header {
+      position: static !important;
+      background: #fff !important;
+      border-color: #ddd !important;
+      padding: 12px 16px !important;
+    }
+    .result-header h2 { color: #111 !important; font-size: 16px !important; }
     .btn-pdf { display: none !important; }
-    .result-body { padding: 0 !important; }
-    .score-card { background: #f0f9ff !important; border-color: #b3e0f7 !important; }
-    .score-big { font-size: 36px !important; -webkit-text-fill-color: #2563eb !important; }
-    .score-denom, .score-name, .score-marking-note { color: #555 !important; }
+
+    .result-body { padding: 8px 0 0 !important; }
+
+    /* Score card */
+    .score-card {
+      background: #f0f9ff !important;
+      border: 1.5px solid #b3d4f0 !important;
+      border-radius: 12px !important;
+      padding: 16px !important;
+      margin-bottom: 14px !important;
+      text-align: center !important;
+    }
+    .score-name { color: #444 !important; font-size: 13px !important; }
+    .score-big {
+      font-size: 40px !important;
+      -webkit-text-fill-color: #1d4ed8 !important;
+      color: #1d4ed8 !important;
+      background: none !important;
+    }
+    .score-denom { color: #555 !important; font-size: 16px !important; }
     .score-pct { color: #16a34a !important; }
-    .stats-grid { gap: 8px !important; }
-    .stat-box { background: #f8fafc !important; border-color: #e2e8f0 !important; }
-    .stat-box .val { color: #1d4ed8 !important; }
+    .score-marking-note { color: #777 !important; }
+
+    /* Stats grid */
+    .stats-grid {
+      gap: 6px !important;
+      margin-bottom: 16px !important;
+    }
+    .stat-box {
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 8px !important;
+      padding: 10px 6px !important;
+    }
+    .stat-box .val { color: #1d4ed8 !important; font-size: 18px !important; }
     .stat-box .val.green { color: #16a34a !important; }
     .stat-box .val.red { color: #dc2626 !important; }
     .stat-box .val.warn { color: #d97706 !important; }
     .stat-box .lbl { color: #64748b !important; }
-    .dash-section-title { color: #64748b !important; }
-    .review-card { background: #fff !important; border-color: #ddd !important; break-inside: avoid; margin-bottom: 10px !important; }
-    .review-card.correct-card { border-color: #86efac !important; }
-    .review-card.wrong-card { border-color: #fca5a5 !important; }
-    .review-card.skip-card { border-color: #fde68a !important; }
-    .review-q-num { color: #111 !important; }
+
+    .dash-section-title {
+      color: #334155 !important;
+      font-size: 12px !important;
+      margin-top: 8px !important;
+      margin-bottom: 8px !important;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
+    }
+
+    /* Review cards — avoid page break inside */
+    .review-card {
+      background: #fff !important;
+      border: 1px solid #ddd !important;
+      border-radius: 10px !important;
+      padding: 12px !important;
+      margin-bottom: 8px !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+    .review-card.correct-card { border-color: #86efac !important; background: #f0fdf4 !important; }
+    .review-card.wrong-card   { border-color: #fca5a5 !important; background: #fff5f5 !important; }
+    .review-card.skip-card    { border-color: #fde68a !important; background: #fffbeb !important; }
+
+    .review-q-num {
+      width: 22px !important; height: 22px !important;
+      font-size: 10px !important;
+    }
     .correct-card .review-q-num { background: #22c55e !important; color: #fff !important; }
-    .wrong-card .review-q-num { background: #ef4444 !important; }
-    .skip-card .review-q-num { background: #f59e0b !important; }
-    .review-q-text { color: #111 !important; }
-    .review-option { background: #f8fafc !important; color: #444 !important; }
-    .review-option.is-correct { background: #f0fdf4 !important; border-color: #86efac !important; color: #111 !important; }
+    .wrong-card .review-q-num   { background: #ef4444 !important; color: #fff !important; }
+    .skip-card .review-q-num    { background: #f59e0b !important; color: #fff !important; }
+
+    .review-q-text { color: #111 !important; font-size: 13px !important; line-height: 1.6 !important; }
+
+    /* Options in review */
+    .review-option {
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      color: #444 !important;
+      font-size: 12px !important;
+      padding: 7px 10px !important;
+      border-radius: 7px !important;
+    }
+    .review-option.is-correct {
+      background: #f0fdf4 !important;
+      border-color: #86efac !important;
+      color: #111 !important;
+    }
     .review-option.is-correct .r-letter { background: #22c55e !important; color: #fff !important; }
-    .review-option.is-user-wrong { background: #fef2f2 !important; border-color: #fca5a5 !important; color: #111 !important; }
+    .review-option.is-user-wrong {
+      background: #fef2f2 !important;
+      border-color: #fca5a5 !important;
+      color: #111 !important;
+    }
     .review-option.is-user-wrong .r-letter { background: #ef4444 !important; color: #fff !important; }
-    .r-letter { background: #e2e8f0 !important; color: #334155 !important; }
-    .verdict-correct { background: #f0fdf4 !important; color: #16a34a !important; }
-    .verdict-wrong { background: #fef2f2 !important; color: #dc2626 !important; }
-    .verdict-skip { background: #fffbeb !important; color: #d97706 !important; }
-    .verdict-unvisited { background: #f1f5f9 !important; color: #64748b !important; }
-    .review-img { max-height: 120px !important; }
+    .r-letter {
+      background: #e2e8f0 !important;
+      color: #334155 !important;
+      width: 20px !important; height: 20px !important;
+      font-size: 9px !important;
+    }
+
+    /* Verdict badges */
+    .verdict-correct  { background: #f0fdf4 !important; color: #16a34a !important; border: 1px solid #86efac; }
+    .verdict-wrong    { background: #fef2f2 !important; color: #dc2626 !important; border: 1px solid #fca5a5; }
+    .verdict-skip     { background: #fffbeb !important; color: #d97706 !important; border: 1px solid #fde68a; }
+    .verdict-unvisited{ background: #f1f5f9 !important; color: #64748b !important; border: 1px solid #cbd5e1; }
+
+    /* Images in print */
+    .review-img {
+      max-height: 110px !important;
+      border: 1px solid #ddd !important;
+      background: #f8fafc !important;
+      border-radius: 6px !important;
+    }
+
+    /* MathJax equations — ensure they render and scale properly */
+    .MathJax, .MJX-TEX, mjx-container {
+      color: #111 !important;
+      font-size: 100% !important;
+    }
+    mjx-container[display="true"] {
+      margin: 6px 0 !important;
+      overflow-x: auto !important;
+    }
+    mjx-container { display: inline !important; }
+
+    /* Page setup */
+    @page {
+      size: A4 portrait;
+      margin: 18mm 14mm 18mm 14mm;
+    }
+  }
+
+  /* ── SCREEN: MathJax styling ── */
+  mjx-container {
+    color: var(--text);
+    font-size: 1em;
+    vertical-align: middle;
+  }
+  mjx-container[display="true"] {
+    display: block !important;
+    overflow-x: auto;
+    margin: 8px 0;
+    padding: 4px 0;
+  }
+  .q-text-single mjx-container,
+  .option-text-single mjx-container,
+  .review-q-text mjx-container,
+  .review-option mjx-container {
+    color: inherit;
   }
 
   .hidden { display: none !important; }
@@ -503,6 +836,21 @@
       <p style="margin-top:8px;">Any attempt of cheating or unfair means will lead to immediate disqualification.</p>
       <p style="margin-top:8px;">Practice makes you perfect. Good luck!</p>
     </div>
+
+    <!-- ── SYLLABUS BUTTON (above marks distribution info box) ── -->
+    <div class="syllabus-btn-wrap">
+      <a href="syllabus.html" class="btn-syllabus" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        View Syllabus
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+        </svg>
+      </a>
+    </div>
+
     <!-- EXAM INFO BOX (shown after fetch) -->
     <div class="exam-info-box hidden" id="examInfoBox">
       <div class="exam-info-icon">
@@ -557,7 +905,6 @@
         <div class="timer-dot" id="timerDot"></div>
         <span id="time">00:00</span>
       </div>
-      <!-- SUBMIT TOP RIGHT -->
       <button class="btn-submit-top" onclick="confirmSubmit()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#060b14" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="20 6 9 17 4 12"/>
@@ -873,7 +1220,7 @@ function updateDots() {
   dots[currentQ]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
 }
 
-// ── RENDER QUESTION ──
+// ── RENDER QUESTION (with MathJax typeset) ──
 function renderQuestion(idx) {
   currentQ = idx;
   visitedQuestions.add(idx);
@@ -901,11 +1248,12 @@ function renderQuestion(idx) {
     </div>`;
   }
 
+  const qText = mathify(q.question);
   const optionsHtml = q.options.map((opt,oi)=>{
     const letter=LETTERS[oi], sel=answers[idx]===letter;
     return `<div class="option-row-single ${sel?'selected':''}" onclick="selectOption(${idx},'${letter}')">
       <div class="option-letter-single">${letter}</div>
-      <div class="option-text-single">${opt}</div>
+      <div class="option-text-single">${mathify(opt)}</div>
     </div>`;
   }).join('');
 
@@ -921,12 +1269,17 @@ function renderQuestion(idx) {
     <div class="q-card-single ${hasAnswer?'answered':''}">
       <div class="q-top-single">
         <div class="q-num">${idx+1}</div>
-        <div class="q-text-single">${q.question}</div>
+        <div class="q-text-single">${qText}</div>
       </div>
       ${imageHtml}
       <div class="q-options-single">${optionsHtml}</div>
       <div class="answer-badge-row">${badgeHtml}</div>
     </div>`;
+
+  // Re-typeset MathJax if loaded
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById('questionViewport')]).catch(()=>{});
+  }
 }
 
 function selectOption(qIdx, letter) { answers[qIdx]=letter; renderQuestion(qIdx); }
@@ -965,7 +1318,6 @@ function doSubmit(timedOut=false) {
   const marksPerQ=examData.marksPerQ||1;
   const hasNegative=examData.hasNegative||false;
 
-  // Client-side score calc
   let correct=0, wrong=0, skipped=0;
   for (let i=0;i<finalAnswers.length;i++) {
     const ua=finalAnswers[i], ca=correctAnswers[i];
@@ -1060,14 +1412,14 @@ function buildResultDashboard(name, score, totalMarks, correct, wrong, skipped, 
       let cls='review-option';
       if (isCA) cls+=' is-correct';
       else if (isUA && isWrong) cls+=' is-user-wrong';
-      return `<div class="${cls}"><div class="r-letter">${letter}</div>${opt}</div>`;
+      return `<div class="${cls}"><div class="r-letter">${letter}</div>${mathify(opt)}</div>`;
     }).join('');
 
     html+=`
       <div class="review-card ${cardClass}">
         <div class="review-q-row">
           <div class="review-q-num">${i+1}</div>
-          <div class="review-q-text">${q.question}</div>
+          <div class="review-q-text">${mathify(q.question)}</div>
         </div>
         ${imgHtml}
         <div class="review-options">${optionsHtml}</div>
@@ -1077,11 +1429,22 @@ function buildResultDashboard(name, score, totalMarks, correct, wrong, skipped, 
 
   document.getElementById('resultBody').innerHTML = html;
   showScreen('result');
+
+  // Typeset all MathJax in result dashboard
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById('resultBody')]).catch(()=>{});
+  }
 }
 
-// ── PDF DOWNLOAD ──
+// ── PDF DOWNLOAD (print with MathJax ready) ──
 function downloadPDF() {
-  window.print();
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([document.getElementById('resultBody')])
+      .then(() => { window.print(); })
+      .catch(() => { window.print(); });
+  } else {
+    window.print();
+  }
 }
 </script>
 </body>
